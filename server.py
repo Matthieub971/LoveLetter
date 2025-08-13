@@ -13,6 +13,9 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 # Instance unique du jeu
 game = Game()
 
+# Dictionnaire { sid: username }
+connected_players = {}
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -21,7 +24,10 @@ def index():
 @socketio.on('join')
 def handle_join(data):
     username = data['username']
-    sid = data['sid'] if 'sid' in data else request.sid
+    sid = request.sid  # on prend toujours le SID fourni par Socket.IO
+
+    # On l’ajoute à la liste des joueurs connectés
+    connected_players[sid] = username
 
     if game.add_player(sid, username):
         join_room('salle1')
@@ -32,26 +38,31 @@ def handle_join(data):
 # Lancer la partie
 @socketio.on('start_game')
 def handle_start():
+    # Seul le premier joueur connecté peut démarrer la partie
+    first_sid = next(iter(connected_players)) if connected_players else None
+    if request.sid != first_sid:
+        emit('message', {'msg': 'Seul le premier joueur connecté peut démarrer la partie.'}, to=request.sid)
+        return
+
     if game.start():
         emit_game_state()
     else:
         emit('message', {'msg': 'Il faut au moins 2 joueurs pour commencer.'}, room='salle1')
 
-# Jouer une carte
-@socketio.on('play_card')
-def handle_play(data):
+# Déconnexion d'un joueur
+@socketio.on('disconnect')
+def handle_disconnect():
     sid = request.sid
-    card_index = data.get('card_index')
-
-    if game.play_card(sid, card_index):
-        check_end_game()
+    if sid in connected_players:
+        username = connected_players.pop(sid)
+        game.remove_player(username)
         emit_game_state()
-    else:
-        emit('message', {'msg': "Ce n'est pas votre tour ou carte invalide."}, to=sid)
 
-# Fonction utilitaire pour envoyer l'état de jeu
+# Fonction utilitaire pour envoyer l'état du jeu à chaque joueur individuellement
 def emit_game_state():
-    emit('game_state', game.get_game_state(), room='salle1')
+    for sid, username in connected_players.items():
+        state = game.get_game_state_for(username)
+        emit('game_state', state, to=sid)
 
 # Vérifie si la partie est terminée
 def check_end_game():

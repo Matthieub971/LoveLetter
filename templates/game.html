@@ -51,6 +51,32 @@
         function goBack() {
             window.location.href = "/";
         }
+
+        socket.on('game_state', (state) => {
+            document.getElementById('join-section').style.display = 'none';
+            document.getElementById('game-section').style.display = 'block';
+
+            const playersDiv = document.getElementById('players');
+            playersDiv.innerHTML = "<h3>Joueurs :</h3>";
+            state.players.forEach(p => {
+                playersDiv.innerHTML += `<div>${p.username} ${p.eliminated ? "(éliminé)" : ""} - ${p.hand_count} cartes</div>`;
+            });
+
+            const handDiv = document.getElementById('hand');
+            handDiv.innerHTML = "";
+            const me = state.players.find(p => p.username === myUsername);
+            if (me && me.hand.length > 0) {
+                me.hand.forEach((cardName, index) => {
+                    handDiv.innerHTML += `
+                        <div class="card" onclick="playCard(${index})">
+                            <img src="/static/cartes/${cardName}.png" 
+                                alt="${cardName}" 
+                                style="width:100px; height:auto;">
+                        </div>
+                    `;
+                });
+            }
+        });
     </script>
 </body>
 </html>
