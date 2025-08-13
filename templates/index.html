@@ -48,6 +48,7 @@
 
         function startGame() {
             socket.emit('start_game');
+            window.location.href = "/game";
         }
 
         function playCard(index) {
@@ -80,11 +81,6 @@
                 for (let i = 0; i < me.hand_count; i++) {
                     handDiv.innerHTML += `<div class="card" onclick="playCard(${i})">Carte ${i+1}</div>`;
                 }
-            }
-
-            // Redirection si la partie a commencé
-            if (state.current_turn) {
-                window.location.href = "/game";
             }
         });
     </script>
