@@ -2,7 +2,7 @@ import eventlet
 eventlet.monkey_patch()
 
 import os
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
 
 app = Flask(__name__)
@@ -49,6 +49,14 @@ def handle_start():
         emit('start_game', broadcast=True)
     else:
         emit('message', {'msg': 'Il faut au moins 2 joueurs pour commencer.'})
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    username = sid_to_username.pop(request.sid, None)
+    if username and username in players:
+        players.remove(username)
+        print(f"{username} a quitté la partie.")
+        emit('player_list', players, broadcast=True)
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
