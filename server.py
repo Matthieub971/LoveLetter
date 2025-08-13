@@ -1,63 +1,81 @@
+import os
 import eventlet
 eventlet.monkey_patch()
 
-import os
 from flask import Flask, render_template, request
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, join_room
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-players = []  # Liste des pseudos
-sid_to_username = {}  # Associer session Socket.IO → pseudo
-game_started = False
+# ========================
+# Variables globales
+# ========================
+players = []  # liste des pseudos
+sid_to_username = {}  # lien entre SID et pseudo
+host_sid = None  # SID du joueur hôte
 
+# ========================
+# Routes HTTP
+# ========================
 @app.route('/')
 def index():
-    return render_template("index.html")
+    return render_template('index.html')
 
+# ========================
+# Événements Socket.IO
+# ========================
 @socketio.on('join')
 def handle_join(data):
-    global game_started
+    global host_sid
     username = data['username']
-    sid_to_username[request.sid] = username
+    sid = request.sid
 
-    # Interdire l'entrée si la partie est déjà lancée
-    if game_started:
-        emit('player_list', players)
-        return
-
-    # Ajouter le joueur s'il n'est pas déjà là
-    if username not in players:
+    if sid not in sid_to_username:
+        sid_to_username[sid] = username
         players.append(username)
-        print(f"{username} a rejoint la partie.")
 
-    # Envoyer la liste mise à jour à tout le monde
-    emit('player_list', players, broadcast=True)
+    # Si aucun hôte, le premier joueur devient hôte
+    if host_sid is None:
+        host_sid = sid
 
-    # Si c'est le premier joueur connecté → il devient hôte
-    if len(players) == 1:
-        emit('you_are_host')  # message uniquement à ce joueur
+    # Met à jour la liste pour tous
+    emit('update_players', {
+        'players': players,
+        'is_host': (sid == host_sid)
+    }, broadcast=True)
 
 @socketio.on('start_game')
 def handle_start():
-    global game_started
-    if not game_started and len(players) >= 2:
-        game_started = True
-        print("La partie commence !")
-        emit('start_game', broadcast=True)
-    else:
-        emit('message', {'msg': 'Il faut au moins 2 joueurs pour commencer.'})
+    sid = request.sid
+    if sid == host_sid:
+        emit('message', {'msg': 'La partie commence !'}, broadcast=True)
+        # Ici on déclenchera plus tard la logique du jeu
 
 @socketio.on('disconnect')
 def handle_disconnect():
-    username = sid_to_username.pop(request.sid, None)
-    if username and username in players:
-        players.remove(username)
-        print(f"{username} a quitté la partie.")
-        emit('player_list', players, broadcast=True)
+    global host_sid
+    sid = request.sid
 
+    if sid in sid_to_username:
+        username = sid_to_username.pop(sid)
+        if username in players:
+            players.remove(username)
+
+        # Si l'hôte part, transfert du rôle
+        if sid == host_sid:
+            host_sid = next(iter(sid_to_username.keys()), None)
+
+        # Diffusion de la nouvelle liste
+        emit('update_players', {
+            'players': players,
+            'is_host': (request.sid == host_sid)
+        }, broadcast=True)
+
+# ========================
+# Lancement serveur
+# ========================
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     socketio.run(app, host="0.0.0.0", port=port)
