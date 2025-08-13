@@ -1,70 +1,78 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Love Letter - Jeu</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="manifest" href="/static/manifest.json">
+    <title>Love Letter - Multijoueur</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; background-color: #f7f7f7; }
-        h1 { color: #c0392b; }
-        .player-list { margin: 20px; }
-        .card { display: inline-block; padding: 10px; margin: 5px; background: white; border: 1px solid #ccc; border-radius: 8px; cursor: pointer; }
-        .hand { margin-top: 20px; }
-        button { padding: 10px 15px; margin: 10px; cursor: pointer; border: none; background-color: #2980b9; color: white; border-radius: 5px; }
-        button:hover { background-color: #3498db; }
-        .turn { font-weight: bold; margin: 10px 0; }
+        body { font-family: Arial, sans-serif; text-align: center; background: #f0f0f0; }
+        .section { display: none; padding: 20px; }
+        .visible { display: block; }
+        #players { margin-top: 10px; }
+        button { padding: 10px 20px; margin-top: 10px; }
     </style>
 </head>
 <body>
-    <h1>Love Letter</h1>
 
-    <!-- Zone pour rejoindre -->
-    <div id="join-section">
-        <input id="username" placeholder="Ton pseudo">
-        <button onclick="joinGame()">Rejoindre</button>
+    <!-- SECTION 1 : Connexion -->
+    <div id="section-login" class="section visible">
+        <h1>Love Letter</h1>
+        <input type="text" id="username" placeholder="Entrez votre pseudo">
+        <br>
+        <button onclick="joinGame()">Se connecter</button>
+        <div id="players"></div>
     </div>
 
-    <!-- Zone de jeu -->
-    <div id="game-section" style="display:none;">
-        <div class="player-list" id="players"></div>
-        <button id="start-btn" onclick="startGame()">Démarrer la partie</button>
+    <!-- SECTION 2 : Main du joueur -->
+    <div id="section-hand" class="section">
+        <h2>Votre main</h2>
+        <img id="card1" src="" alt="Carte 1" width="150">
+        <img id="card2" src="" alt="Carte 2" width="150">
+        <br>
+        <button onclick="goToBoard()">Voir le plateau</button>
     </div>
 
-    <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
+    <!-- SECTION 3 : Plateau -->
+    <div id="section-board" class="section">
+        <h2>Plateau de jeu</h2>
+        <div id="board-state"></div>
+        <br>
+        <button onclick="goToHand()">Retour à ma main</button>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script>
         const socket = io();
-        let myUsername = "";
-        localStorage.setItem('username', myUsername);
+
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('visible'));
+            document.getElementById(id).classList.add('visible');
+        }
 
         function joinGame() {
-            myUsername = document.getElementById('username').value.trim();
-            if (!myUsername) return alert("Entre un pseudo !");
-            socket.emit('join', { username: myUsername });
+            const username = document.getElementById("username").value.trim();
+            if (!username) return;
+            socket.emit('join', { username });
         }
 
-        function startGame() {
-            socket.emit('start_game');
+        function goToBoard() {
+            showSection("section-board");
         }
 
-        socket.on('message', (data) => {
-            alert(data.msg);
+        function goToHand() {
+            showSection("section-hand");
+        }
+
+        // Réception de la liste des joueurs
+        socket.on('player_list', players => {
+            const playersDiv = document.getElementById('players');
+            playersDiv.innerHTML = "<h3>Joueurs connectés :</h3>" + players.map(p => `<p>${p}</p>`).join('');
         });
 
-        socket.on('game_state', (state) => {
-            document.getElementById('join-section').style.display = 'none';
-            document.getElementById('game-section').style.display = 'block';
-
-            // Afficher les joueurs
-            const playersDiv = document.getElementById('players');
-            playersDiv.innerHTML = "<h3>Joueurs :</h3>";
-            state.players.forEach(p => {
-                playersDiv.innerHTML += `<div>${p.username} ${p.eliminated ? "(éliminé)" : ""} - ${p.hand_count} cartes</div>`;
-            });
-            if (state.started){
-                window.location.href = "/game";
-            }
+        // Changement d'écran vers la main
+        socket.on('start_game', () => {
+            showSection("section-hand");
         });
     </script>
+
 </body>
 </html>
