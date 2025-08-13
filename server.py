@@ -69,6 +69,14 @@ def on_disconnect():
     # Envoyer la liste mise à jour à tout le monde
     emit('player_list', list(players.values()), broadcast=True)
 
+@socketio.on('reset_game')
+def on_reset_game():
+    global players, host_sid
+    players = {}
+    host_sid = None
+    emit('game_reset', broadcast=True)
+
+
 # ========================
 # Lancement serveur
 # ========================

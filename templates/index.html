@@ -22,6 +22,7 @@
         <button onclick="joinGame()">Se connecter</button>
         <div id="players"></div>
         <button id="start-btn" onclick="startGame()" style="display:none;">Lancer la partie</button>
+        <button id="quit-btn" onclick="quitGame()" style="display:none;">Quitter la partie</button>
     </div>
 
     <!-- SECTION 2 : Main du joueur -->
@@ -62,6 +63,12 @@
             socket.emit('start_game');
         }
 
+        function quitGame() {
+            if (confirm("Êtes-vous sûr de vouloir quitter et réinitialiser la partie ?")) {
+                socket.emit('reset_game');
+            }
+        }
+
         function goToBoard() {
             showSection("section-board");
         }
@@ -83,11 +90,17 @@
 
         // Afficher le bouton "Lancer la partie" uniquement pour l'hôte
         socket.on('is_host', (status) => {
-            if (status) {
-                document.getElementById('start-btn').style.display = 'block';
-            } else {
-                document.getElementById('start-btn').style.display = 'none';
-            }
+            document.getElementById('start-btn').style.display = status ? 'block' : 'none';
+            document.getElementById('quit-btn').style.display = status ? 'block' : 'none';
+        });
+
+        // Réinitialiser l'interface côté client
+        socket.on('game_reset', () => {
+            myUsername = null;
+            document.getElementById('username').value = "";
+            showSection("section-login");
+            document.getElementById('start-btn').style.display = 'none';
+            document.getElementById('quit-btn').style.display = 'none';
         });
     </script>
 
