@@ -28,11 +28,7 @@
     <!-- Zone de jeu -->
     <div id="game-section" style="display:none;">
         <div class="player-list" id="players"></div>
-        <div class="turn" id="turn-info"></div>
         <button id="start-btn" onclick="startGame()">Démarrer la partie</button>
-
-        <h3>Ta main</h3>
-        <div class="hand" id="hand"></div>
     </div>
 
     <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
@@ -69,19 +65,6 @@
             state.players.forEach(p => {
                 playersDiv.innerHTML += `<div>${p.username} ${p.eliminated ? "(éliminé)" : ""} - ${p.hand_count} cartes</div>`;
             });
-
-            // Tour actuel
-            document.getElementById('turn-info').textContent = "Tour de : " + state.current_turn;
-
-            // Afficher les cartes si c'est mon tour
-            const handDiv = document.getElementById('hand');
-            handDiv.innerHTML = "";
-            const me = state.players.find(p => p.username === myUsername);
-            if (me) {
-                for (let i = 0; i < me.hand_count; i++) {
-                    handDiv.innerHTML += `<div class="card" onclick="playCard(${i})">Carte ${i+1}</div>`;
-                }
-            }
         });
     </script>
 </body>
