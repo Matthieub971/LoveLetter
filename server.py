@@ -1,20 +1,18 @@
-import os
 import eventlet
 eventlet.monkey_patch()
 
 from flask import Flask, render_template, request
-from flask_socketio import SocketIO, emit, join_room
+from flask_socketio import SocketIO, emit, join_room, leave_room
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app)
 
 # ========================
 # Variables globales
 # ========================
-players = []  # liste des pseudos
-sid_to_username = {}  # lien entre SID et pseudo
-host_sid = None  # SID du joueur hôte
+# Liste des joueurs connectés : { sid: username }
+players = {}
+host_sid = None
 
 # ========================
 # Routes HTTP
@@ -29,56 +27,50 @@ def index():
 @socketio.on('join')
 def on_join(data):
     global host_sid
-    username = data['username']
-    sid = request.sid
+    sid = str(request.sid)
+    username = data.get("username")
 
+    if not username:
+        return
+
+    # Ajouter le joueur
     players[sid] = username
 
-    # Si pas d'hôte défini → premier joueur
+    # Si pas d'hôte encore, ce joueur devient l'hôte
     if host_sid is None:
         host_sid = sid
 
-    print(f"{username} a rejoint. Hôte: {players.get(host_sid)}")
+    # Envoyer la liste des joueurs à tout le monde
+    emit('player_list', list(players.values()), broadcast=True)
 
-    # Mise à jour de la liste pour tous
-    for player_sid in players:
-        socketio.emit('update_players', {
-            'players': list(players.values()),
-            'is_host': (player_sid == host_sid)
-        }, to=player_sid)
+    # Dire à ce joueur s'il est hôte
+    emit('is_host', sid == host_sid)
 
 @socketio.on('start_game')
-def handle_start():
-    sid = request.sid
-    if sid == host_sid:
-        emit('message', {'msg': 'La partie commence !'}, broadcast=True)
-        # Ici on déclenchera plus tard la logique du jeu
+def on_start_game():
+    # Diffuser à tous que la partie commence
+    emit('start_game', broadcast=True)
 
 @socketio.on('disconnect')
 def on_disconnect():
     global host_sid
-    sid = request.sid
-    username = players.pop(sid, None)
+    sid = str(request.sid)
 
-    if username:
-        print(f"{username} a quitté.")
+    # Retirer le joueur
+    players.pop(sid, None)
 
-    # Si l'hôte est parti → donner rôle au prochain joueur
+    # Si c'était l'hôte, passer l'hôte au prochain joueur
     if sid == host_sid:
-        host_sid = next(iter(players), None)
+        host_sid = next(iter(players), None)  # premier joueur restant ou None
         if host_sid:
-            print(f"Nouvel hôte: {players[host_sid]}")
+            # Notifier le nouvel hôte
+            emit('is_host', True, room=host_sid)
 
-    # Mise à jour pour tous les joueurs
-    for player_sid in players:
-        socketio.emit('update_players', {
-            'players': list(players.values()),
-            'is_host': (player_sid == host_sid)
-        }, to=player_sid)
+    # Envoyer la liste mise à jour à tout le monde
+    emit('player_list', list(players.values()), broadcast=True)
 
 # ========================
 # Lancement serveur
 # ========================
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    socketio.run(app, host="0.0.0.0", port=port)
+    socketio.run(app, host='0.0.0.0', port=5000)

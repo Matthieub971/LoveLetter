@@ -108,10 +108,8 @@
         });
 
         // Passage à l'écran main quand la partie commence
-        socket.on('message', data => {
-            if (data.msg === "La partie commence !") {
-                showSection("section-hand");
-            }
+        socket.on('start_game', () => {
+            showSection("section-hand");
         });
     </script>
 
