@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Love Letter - Multijoueur</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body { font-family: Arial, sans-serif; text-align: center; background: #f0f0f0; }
         .section { display: none; padding: 20px; }
@@ -20,6 +21,7 @@
         <br>
         <button onclick="joinGame()">Se connecter</button>
         <div id="players"></div>
+        <button id="start-btn" onclick="startGame()" style="display:none;">Lancer la partie</button>
     </div>
 
     <!-- SECTION 2 : Main du joueur -->
@@ -42,6 +44,7 @@
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script>
         const socket = io();
+        let myUsername = null;
 
         function showSection(id) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('visible'));
@@ -51,7 +54,12 @@
         function joinGame() {
             const username = document.getElementById("username").value.trim();
             if (!username) return;
+            myUsername = username;
             socket.emit('join', { username });
+        }
+
+        function startGame() {
+            socket.emit('start_game');
         }
 
         function goToBoard() {
@@ -66,6 +74,11 @@
         socket.on('player_list', players => {
             const playersDiv = document.getElementById('players');
             playersDiv.innerHTML = "<h3>Joueurs connectés :</h3>" + players.map(p => `<p>${p}</p>`).join('');
+        });
+
+        // Afficher le bouton "Lancer la partie" uniquement pour l'hôte
+        socket.on('you_are_host', () => {
+            document.getElementById("start-btn").style.display = "inline-block";
         });
 
         // Changement d'écran vers la main
