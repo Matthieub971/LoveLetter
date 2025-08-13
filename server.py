@@ -27,24 +27,25 @@ def index():
 # Événements Socket.IO
 # ========================
 @socketio.on('join')
-def handle_join(data):
+def on_join(data):
     global host_sid
     username = data['username']
     sid = request.sid
 
-    if sid not in sid_to_username:
-        sid_to_username[sid] = username
-        players.append(username)
+    players[sid] = username
 
-    # Si aucun hôte, le premier joueur devient hôte
+    # Si pas d'hôte défini → premier joueur
     if host_sid is None:
         host_sid = sid
 
-    # Met à jour la liste pour tous
-    emit('update_players', {
-        'players': players,
-        'is_host': (sid == host_sid)
-    }, broadcast=True)
+    print(f"{username} a rejoint. Hôte: {players.get(host_sid)}")
+
+    # Mise à jour de la liste pour tous
+    for player_sid in players:
+        socketio.emit('update_players', {
+            'players': list(players.values()),
+            'is_host': (player_sid == host_sid)
+        }, to=player_sid)
 
 @socketio.on('start_game')
 def handle_start():
@@ -54,24 +55,26 @@ def handle_start():
         # Ici on déclenchera plus tard la logique du jeu
 
 @socketio.on('disconnect')
-def handle_disconnect():
+def on_disconnect():
     global host_sid
     sid = request.sid
+    username = players.pop(sid, None)
 
-    if sid in sid_to_username:
-        username = sid_to_username.pop(sid)
-        if username in players:
-            players.remove(username)
+    if username:
+        print(f"{username} a quitté.")
 
-        # Si l'hôte part, transfert du rôle
-        if sid == host_sid:
-            host_sid = next(iter(sid_to_username.keys()), None)
+    # Si l'hôte est parti → donner rôle au prochain joueur
+    if sid == host_sid:
+        host_sid = next(iter(players), None)
+        if host_sid:
+            print(f"Nouvel hôte: {players[host_sid]}")
 
-        # Diffusion de la nouvelle liste
-        emit('update_players', {
-            'players': players,
-            'is_host': (request.sid == host_sid)
-        }, broadcast=True)
+    # Mise à jour pour tous les joueurs
+    for player_sid in players:
+        socketio.emit('update_players', {
+            'players': list(players.values()),
+            'is_host': (player_sid == host_sid)
+        }, to=player_sid)
 
 # ========================
 # Lancement serveur
