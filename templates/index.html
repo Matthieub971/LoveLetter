@@ -44,11 +44,6 @@
 
         function startGame() {
             socket.emit('start_game');
-            window.location.href = "/game";
-        }
-
-        function playCard(index) {
-            socket.emit('play_card', { card_index: index });
         }
 
         socket.on('message', (data) => {
@@ -65,6 +60,9 @@
             state.players.forEach(p => {
                 playersDiv.innerHTML += `<div>${p.username} ${p.eliminated ? "(éliminé)" : ""} - ${p.hand_count} cartes</div>`;
             });
+            if (state.started){
+                window.location.href = "/game";
+            }
         });
     </script>
 </body>
