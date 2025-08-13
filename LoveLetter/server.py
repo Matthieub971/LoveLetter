@@ -1,5 +1,6 @@
 from flask import Flask, send_from_directory
 from flask_socketio import SocketIO
+import os
 
 app = Flask(__name__, static_folder="static")
 socketio = SocketIO(app)
@@ -36,4 +37,5 @@ def handle_play(data):
     emit('card_played', data, room='salle1')
 
 if __name__ == '__main__':
-    socketio.run(app, host="0.0.0.0", port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    socketio.run(app, host="0.0.0.0", port=port)
