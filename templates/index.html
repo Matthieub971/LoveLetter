@@ -1,26 +1,86 @@
-<!-- static/index.html -->
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Jeu de cartes</title>
-    <link rel="manifest" href="manifest.json">
+    <meta charset="UTF-8">
+    <title>Love Letter - Jeu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="/static/manifest.json">
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #f7f7f7; }
+        h1 { color: #c0392b; }
+        .player-list { margin: 20px; }
+        .card { display: inline-block; padding: 10px; margin: 5px; background: white; border: 1px solid #ccc; border-radius: 8px; cursor: pointer; }
+        .hand { margin-top: 20px; }
+        button { padding: 10px 15px; margin: 10px; cursor: pointer; border: none; background-color: #2980b9; color: white; border-radius: 5px; }
+        button:hover { background-color: #3498db; }
+        .turn { font-weight: bold; margin: 10px 0; }
+    </style>
 </head>
 <body>
-    <h1>Mon jeu de cartes</h1>
-    <input id="username" placeholder="Ton pseudo">
-    <button onclick="joinGame()">Rejoindre</button>
+    <h1>Love Letter</h1>
+
+    <!-- Zone pour rejoindre -->
+    <div id="join-section">
+        <input id="username" placeholder="Ton pseudo">
+        <button onclick="joinGame()">Rejoindre</button>
+    </div>
+
+    <!-- Zone de jeu -->
+    <div id="game-section" style="display:none;">
+        <div class="player-list" id="players"></div>
+        <div class="turn" id="turn-info"></div>
+        <button onclick="startGame()">Démarrer la partie</button>
+
+        <h3>Ta main</h3>
+        <div class="hand" id="hand"></div>
+    </div>
 
     <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
     <script>
         const socket = io();
+        let myUsername = "";
 
         function joinGame() {
-            const name = document.getElementById('username').value;
-            socket.emit('join', {username: name});
+            myUsername = document.getElementById('username').value.trim();
+            if (!myUsername) return alert("Entre un pseudo !");
+            socket.emit('join', { username: myUsername });
+        }
+
+        function startGame() {
+            socket.emit('start_game');
+        }
+
+        function playCard(index) {
+            socket.emit('play_card', { card_index: index });
         }
 
         socket.on('message', (data) => {
             alert(data.msg);
+        });
+
+        socket.on('game_state', (state) => {
+            document.getElementById('join-section').style.display = 'none';
+            document.getElementById('game-section').style.display = 'block';
+
+            // Afficher les joueurs
+            const playersDiv = document.getElementById('players');
+            playersDiv.innerHTML = "<h3>Joueurs :</h3>";
+            state.players.forEach(p => {
+                playersDiv.innerHTML += `<div>${p.username} ${p.eliminated ? "(éliminé)" : ""} - ${p.hand_count} cartes</div>`;
+            });
+
+            // Tour actuel
+            document.getElementById('turn-info').textContent = "Tour de : " + state.current_turn;
+
+            // Afficher les cartes si c'est mon tour
+            const handDiv = document.getElementById('hand');
+            handDiv.innerHTML = "";
+            const me = state.players.find(p => p.username === myUsername);
+            if (me) {
+                for (let i = 0; i < me.hand_count; i++) {
+                    handDiv.innerHTML += `<div class="card" onclick="playCard(${i})">Carte ${i+1}</div>`;
+                }
+            }
         });
     </script>
 </body>
