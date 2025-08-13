@@ -1,16 +1,3 @@
-from flask import Flask, send_from_directory
-from flask_socketio import SocketIO
-import os
-
-app = Flask(__name__, static_folder="static")
-socketio = SocketIO(app)
-
-@app.route('/')
-def index():
-    return send_from_directory(app.static_folder, 'index.html')
-
-if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=5000)
 # server.py
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit, join_room
