@@ -35,6 +35,7 @@
     <script>
         const socket = io();
         let myUsername = "";
+        localStorage.setItem('username', myUsername);
 
         function joinGame() {
             myUsername = document.getElementById('username').value.trim();
