@@ -29,7 +29,7 @@
     <div id="game-section" style="display:none;">
         <div class="player-list" id="players"></div>
         <div class="turn" id="turn-info"></div>
-        <button onclick="startGame()">Démarrer la partie</button>
+        <button id="start-btn" onclick="startGame()">Démarrer la partie</button>
 
         <h3>Ta main</h3>
         <div class="hand" id="hand"></div>
@@ -80,6 +80,11 @@
                 for (let i = 0; i < me.hand_count; i++) {
                     handDiv.innerHTML += `<div class="card" onclick="playCard(${i})">Carte ${i+1}</div>`;
                 }
+            }
+
+            // Redirection si la partie a commencé
+            if (state.current_turn) {
+                window.location.href = "/game";
             }
         });
     </script>

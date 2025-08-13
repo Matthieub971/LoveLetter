@@ -1,68 +1,89 @@
-import os
-import eventlet
-eventlet.monkey_patch()
-
-from flask import Flask, render_template, request
-from flask_socketio import SocketIO, emit, join_room, leave_room
-from game import Game
+from flask import Flask, render_template
+from flask_socketio import SocketIO, emit
+from flask import request
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app)
 
-# Instance unique du jeu
-game = Game()
+players = {}          # mapping sid → username
+first_player_sid = None
+game_started = False
 
 @app.route('/')
 def index():
     return render_template('index.html')
 
-# Nouveau joueur rejoint
 @socketio.on('join')
 def handle_join(data):
-    username = data['username']
-    sid = data['sid'] if 'sid' in data else request.sid
-
-    if game.add_player(sid, username):
-        join_room('salle1')
-        emit('message', {'msg': f'{username} a rejoint la partie'}, room='salle1')
-        emit_game_state()
-    else:
-        emit('message', {'msg': 'Impossible de rejoindre (partie déjà commencée).'}, to=sid)
-
-# Lancer la partie
-@socketio.on('start_game')
-def handle_start():
-    if game.start():
-        emit('message', {'msg': 'La partie commence !'}, room='salle1')
-        emit_game_state()
-    else:
-        emit('message', {'msg': 'Il faut au moins 2 joueurs pour commencer.'}, room='salle1')
-
-# Jouer une carte
-@socketio.on('play_card')
-def handle_play(data):
+    global first_player_sid
+    username = data['username'].strip()
     sid = request.sid
-    card_index = data.get('card_index')
 
-    if game.play_card(sid, card_index):
-        check_end_game()
-        emit_game_state()
-    else:
-        emit('message', {'msg': "Ce n'est pas votre tour ou carte invalide."}, to=sid)
+    # Ajouter le joueur si pas déjà présent
+    if sid not in players:
+        players[sid] = username
+        print(f"{username} rejoint le jeu (SID={sid})")
 
-# Fonction utilitaire pour envoyer l'état de jeu
-def emit_game_state():
-    emit('game_state', game.get_game_state(), room='salle1')
+        # Définir le premier joueur
+        if first_player_sid is None:
+            first_player_sid = sid
 
-# Vérifie si la partie est terminée
-def check_end_game():
-    remaining_players = [p for p in game.players if not p.eliminated]
-    if len(remaining_players) <= 1 or len(game.deck) == 0:
-        winner = remaining_players[0].username if remaining_players else "Aucun"
-        emit('message', {'msg': f'Partie terminée ! Gagnant : {winner}'}, room='salle1')
-        game.started = False
+    # Envoyer l'état du jeu à tous
+    emit('game_state', {
+        'players': [{'username': name, 'hand_count': 0, 'eliminated': False} for name in players.values()],
+        'current_turn': None
+    }, broadcast=True)
+
+@socketio.on('start_game')
+def handle_start_game():
+    global game_started
+    sid = request.sid
+    username = players.get(sid, None)
+
+    if game_started:
+        emit('message', {'msg': 'La partie a déjà commencé !'})
+        return
+
+    # Vérifier si c'est le premier joueur
+    if sid != first_player_sid:
+        emit('message', {'msg': 'Seul le premier joueur peut démarrer la partie !'})
+        return
+
+    # Démarrer la partie
+    game_started = True
+    emit('message', {'msg': f'La partie démarre ! Premier joueur : {players[first_player_sid]}'}, broadcast=True)
+
+    # Exemple : initialiser les mains et le tour
+    emit('game_state', {
+        'players': [{'username': name, 'hand_count': 2, 'eliminated': False} for name in players.values()],
+        'current_turn': players[first_player_sid]
+    }, broadcast=True)
+
+@socketio.on('disconnect')
+def handle_disconnect():
+    global first_player_sid
+    sid = request.sid
+    username = players.pop(sid, None)
+    print(f"{username} a quitté le jeu (SID={sid})")
+
+    # Si le premier joueur part, choisir un nouveau
+    if sid == first_player_sid and players:
+        first_player_sid = next(iter(players))
+        print(f"Nouveau premier joueur : {players[first_player_sid]}")
+    elif not players:
+        first_player_sid = None
+        global game_started
+        game_started = False
+
+    # Mettre à jour les autres joueurs
+    emit('game_state', {
+        'players': [{'username': name, 'hand_count': 0, 'eliminated': False} for name in players.values()],
+        'current_turn': None
+    }, broadcast=True)
+
+@app.route('/game')
+def game_page():
+    return render_template("game.html")
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    socketio.run(app, host="0.0.0.0", port=port)
+    socketio.run(app, debug=True)

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Love Letter - Partie</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="/static/manifest.json">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f7f7f7;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            color: #c0392b;
+            margin-top: 50px;
+        }
+        .game-container {
+            margin-top: 50px;
+        }
+        .info {
+            font-size: 18px;
+            color: #34495e;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 20px;
+            cursor: pointer;
+            border: none;
+            background-color: #2980b9;
+            color: white;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #3498db;
+        }
+    </style>
+</head>
+<body>
+    <h1>Game</h1>
+    <div class="game-container">
+        <div class="info">La partie a commencé !</div>
+        <button onclick="goBack()">Retour à l’accueil</button>
+    </div>
+
+    <script>
+        function goBack() {
+            window.location.href = "/";
+        }
+    </script>
+</body>
+</html>
