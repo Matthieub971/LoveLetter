@@ -1,0 +1,27 @@
+<!-- static/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Jeu de cartes</title>
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <h1>Mon jeu de cartes</h1>
+    <input id="username" placeholder="Ton pseudo">
+    <button onclick="joinGame()">Rejoindre</button>
+
+    <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+
+        function joinGame() {
+            const name = document.getElementById('username').value;
+            socket.emit('join', {username: name});
+        }
+
+        socket.on('message', (data) => {
+            alert(data.msg);
+        });
+    </script>
+</body>
+</html>
