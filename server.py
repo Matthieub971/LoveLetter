@@ -41,6 +41,7 @@ def on_join(data):
 
 @socketio.on('start_game')
 def on_start_game():
+    sid = str(request.sid)
     try:
         game.start_game()
     except ValueError as e:
@@ -54,16 +55,19 @@ def on_start_game():
     if current_player:
         # Tirer une carte pour le joueur actif
         game.draw_for_player(current_player.sid)
-    
+
     # Envoyer à chaque joueur sa main privée
     for player in game.players:
-        emit('update_hand', player.to_private_dict()["hand"], room=player.sid)
+        emit('update_hand', player.to_dict()["hand"], room=player.sid)
+
+    emit('is_playing', sid==current_player.sid, broadcast=True)
 
 @socketio.on('play')
 def on_play(data):
     """
     data attendu depuis le client : {'cardIndex': int}
     """
+    sid = str(request.sid)
     cardIndex = data.get('cardIndex', 0)  # index de la carte à défausser
     current_player = game.get_current_player()
 
@@ -73,16 +77,19 @@ def on_play(data):
         print(f"{current_player.name} a défaussé : {discarded_card.name if discarded_card else 'aucune'}")
 
         # Mettre à jour la main du joueur actuel
-        emit('update_hand', current_player.to_private_dict()["hand"], room=current_player.sid)
-
+        emit('update_hand', current_player.to_dict()["hand"], room=current_player.sid)
+        
     # Passer au joueur suivant
     game.next_turn()
     current_player = game.get_current_player()
     if current_player:
         # Tirer une carte pour le joueur actif
         game.draw_for_player(current_player.sid)
-        emit('update_hand', current_player.to_private_dict()["hand"], room=current_player.sid)
+        emit('update_hand', current_player.to_dict()["hand"], room=current_player.sid)
         #emit('update_game_state', game.to_dict(), broadcast=True)
+
+    emit('is_playing', sid==current_player.sid, broadcast=True)
+    
 
 @socketio.on('disconnect')
 def on_disconnect():

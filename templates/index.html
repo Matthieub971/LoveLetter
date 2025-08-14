@@ -37,7 +37,7 @@
         <div id="player-cards"></div>
         <br>
         <button onclick="goToBoard()">Voir le plateau</button>
-        <button id="end-turn-btn" onclick="play()">Jouer</button>
+        <button id="play-btn" onclick="play()">Jouer</button>
     </div>
 
     <!-- SECTION 3 : Plateau -->
@@ -46,7 +46,7 @@
         <div id="board-state"></div>
         <br>
         <button onclick="goToHand()">Retour à ma main</button>
-        <button id="end-turn-btn-board" onclick="play()">Jouer</button>
+        <button id="play-btn-board" onclick="play()">Jouer</button>
     </div>
 
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
@@ -141,6 +141,12 @@
                 img.onclick = () => selectCard(index);
                 container.appendChild(img);
             });
+        });
+
+        // Afficher les boutons spécifiques à celui qui joue
+        socket.on('is_playing', (status) => {
+            document.getElementById('play-btn').style.display = status ? 'block' : 'none';
+            document.getElementById('play-btn-board').style.display = status ? 'block' : 'none';
         });
     </script>
 

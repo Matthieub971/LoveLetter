@@ -33,16 +33,10 @@ class Player:
             return self.hand.pop(index)
         return None
 
-    def to_public_dict(self):
-        """Infos visibles par les autres joueurs (pas la main complète)"""
+    def to_dict(self):
+        """Version complète pour le joueur lui-même"""
         return {
-            "name": self.name,
-            "eliminated": self.eliminated
-        }
-
-    def to_private_dict(self):
-        """Infos visibles par le joueur lui-même (avec main complète)"""
-        return {
+            "sid": self.sid,
             "name": self.name,
             "hand": [card.to_dict() for card in self.hand],
             "eliminated": self.eliminated
@@ -124,3 +118,12 @@ class Game:
         self.discard_pile.clear()
         self.started = False
         self.current_turn_index = 0
+
+    def to_dict(self):
+        """Retourne un dictionnaire représentant l'état du jeu (pour tous les joueurs)"""
+        return {
+            "players": [p.to_dict() for p in self.players],
+            "deck": [c.to_dict() for c in self.deck],
+            "discard_pile": [c.to_dict() for c in self.discard_pile],
+            "current_turn_index": self.current_turn_index
+        }
