@@ -154,7 +154,7 @@
                 img.classList.add('player-card');
 
                 const span = document.createElement('span');
-                span.textContent = `${player.name} - ${player.eliminated ? 'Éliminé' : 'Actif'}`;
+                span.textContent = `${player.name} ${player.eliminated ? ' - Éliminé' : ''}`;
 
                 div.appendChild(img);
                 div.appendChild(span);
