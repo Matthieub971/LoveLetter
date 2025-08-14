@@ -37,7 +37,7 @@
         <div id="player-cards"></div>
         <br>
         <button onclick="goToBoard()">Voir le plateau</button>
-        <button id="end-turn-btn" onclick="endTurn()">Fin du tour</button>
+        <button id="end-turn-btn" onclick="play()">Jouer</button>
     </div>
 
     <!-- SECTION 3 : Plateau -->
@@ -46,7 +46,7 @@
         <div id="board-state"></div>
         <br>
         <button onclick="goToHand()">Retour à ma main</button>
-        <button id="end-turn-btn-board" onclick="endTurn()">Fin du tour</button>
+        <button id="end-turn-btn-board" onclick="play()">Jouer</button>
     </div>
 
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
@@ -85,12 +85,12 @@
             showSection("section-hand");
         }
 
-        function endTurn() {
+        function play() {
             if (selectedCardIndex === null) {
                 alert("Veuillez sélectionner une carte à jouer !");
                 return;
             }
-            socket.emit('end_turn', { cardIndex: selectedCardIndex });
+            socket.emit('play', { cardIndex: selectedCardIndex });
             selectedCardIndex = null;
         }
 

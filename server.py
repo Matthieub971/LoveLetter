@@ -52,10 +52,12 @@ def on_start_game():
     # Envoyer la main privée du joueur actif
     current_player = game.get_current_player()
     if current_player:
+        # Tirer une carte pour le joueur actif
+        game.draw_for_player(current_player.sid)
         emit('update_hand', current_player.to_private_dict()["hand"], room=current_player.sid)
 
-@socketio.on('end_turn')
-def on_end_turn(data):
+@socketio.on('play')
+def on_play(data):
     """
     data attendu depuis le client : {'cardIndex': int}
     """
