@@ -74,6 +74,7 @@ def on_reset_game():
     global players, host_sid
     players = {}
     host_sid = None
+    emit('player_list', list(players.values()), broadcast=True)
     emit('game_reset', broadcast=True)
 
 

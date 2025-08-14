@@ -9,10 +9,16 @@
         .section { display: none; padding: 20px; }
         .visible { display: block; }
         #players { margin-top: 10px; }
-        button { padding: 10px 20px; margin-top: 10px; }
+        button { padding: 10px 20px; margin: 10px; }
+        #top-bar { position: fixed; top: 10px; right: 10px; }
     </style>
 </head>
 <body>
+
+    <!-- Barre fixe en haut à droite pour les boutons globaux -->
+    <div id="top-bar">
+        <button id="quit-btn" onclick="quitGame()" style="display:none;">Quitter la partie</button>
+    </div>
 
     <!-- SECTION 1 : Connexion -->
     <div id="section-login" class="section visible">
@@ -22,7 +28,6 @@
         <button onclick="joinGame()">Se connecter</button>
         <div id="players"></div>
         <button id="start-btn" onclick="startGame()" style="display:none;">Lancer la partie</button>
-        <button id="quit-btn" onclick="quitGame()" style="display:none;">Quitter la partie</button>
     </div>
 
     <!-- SECTION 2 : Main du joueur -->
@@ -88,7 +93,7 @@
             showSection("section-hand");
         });
 
-        // Afficher le bouton "Lancer la partie" uniquement pour l'hôte
+        // Afficher les boutons spécifiques à l'hôte
         socket.on('is_host', (status) => {
             document.getElementById('start-btn').style.display = status ? 'block' : 'none';
             document.getElementById('quit-btn').style.display = status ? 'block' : 'none';
