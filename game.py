@@ -23,6 +23,8 @@ class Player:
         self.name = name
         self.hand = []  # Liste d'objets Card
         self.eliminated = False
+        self.espionne = None
+        self.servante = None
 
     def draw_card(self, card: Card):
         self.hand.append(card)
@@ -32,6 +34,25 @@ class Player:
         if 0 <= index < len(self.hand):
             return self.hand.pop(index)
         return None
+    
+    def handle_card(self, index: int):
+        """
+        Gère la carte jouée selon sa valeur :
+        - 0 (Espionne)  → stockée dans self.espionne
+        - 4 (Servante)  → stockée dans self.servante
+        """
+        if index < 0 or index >= len(self.hand):
+            raise IndexError("Index de carte invalide")
+
+        card = self.hand[index]
+
+        if card.value == 0:
+            self.espionne = card
+        elif card.value == 4:
+            self.servante = card
+
+        return None
+
 
     def to_dict(self):
         """Version complète pour le joueur lui-même"""
@@ -88,8 +109,7 @@ class Game:
 
         self.current_turn_index = 0
 
-        self.draw_for_player(self.players[self.current_turn_index ].sid)
-
+        self.draw_for_player(self.players[self.current_turn_index].sid)
 
     def draw_for_player(self, sid: str):
         """Donner une carte du deck à un joueur"""

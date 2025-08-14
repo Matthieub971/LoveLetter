@@ -43,7 +43,7 @@
     <!-- SECTION 3 : Plateau -->
     <div id="section-board" class="section">
         <h2>Plateau de jeu</h2>
-        <div id="board-state"></div>
+        <div id="players-list"></div>
         <br>
         <button onclick="goToHand()">Retour à ma main</button>
         <button id="play-btn-board" onclick="play()">Jouer</button>
@@ -147,6 +147,28 @@
         socket.on('is_playing', (status) => {
             document.getElementById('play-btn').style.display = status ? 'inline-block' : 'none';
             document.getElementById('play-btn-board').style.display = status ? 'inline-block' : 'none';
+        });
+
+        socket.on('update_players', (players) => {
+            const playersList = document.getElementById('players-list');
+            playersList.innerHTML = ''; // On vide la liste
+
+            players.forEach(player => {
+                const div = document.createElement('div');
+                div.classList.add('player-info');
+
+                const img = document.createElement('img');
+                img.src = player.card; // chemin de la carte
+                img.alt = "Carte";
+                img.classList.add('player-card');
+
+                const span = document.createElement('span');
+                span.textContent = `${player.name} - ${player.eliminated ? 'Éliminé' : 'Actif'}`;
+
+                div.appendChild(img);
+                div.appendChild(span);
+                playersList.appendChild(div);
+            });
         });
     </script>
 

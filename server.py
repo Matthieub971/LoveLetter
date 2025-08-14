@@ -54,7 +54,18 @@ def on_start_game():
     # Envoyer à chaque joueur sa main privée
     for player in game.players:
         emit('update_hand', player.to_dict()["hand"], room=player.sid)
-        emit('is_playing', player.sid == current_player.sid, room=player.sid)    
+        emit('is_playing', player.sid == current_player.sid, room=player.sid) 
+        emit('update_players', [
+            {
+                "name": player.name,
+                "eliminated": player.eliminated,
+                "card": (
+                    player.servante.image_path if player.servante 
+                    else player.espionne.image_path if player.espionne 
+                    else "/static/cartes/Dos.png"
+                )
+            }
+        ], broadcast=True)
 
 @socketio.on('play')
 def on_play(data):
@@ -66,8 +77,8 @@ def on_play(data):
 
     if current_player:
         # Défausser la carte sélectionnée
-        discarded_card = current_player.discard_card(cardIndex)
-        print(f"{current_player.name} a défaussé : {discarded_card.name if discarded_card else 'aucune'}")
+        current_player.handle_card(cardIndex)
+        current_player.discard_card(cardIndex)
 
         # Mettre à jour la main du joueur actuel
         emit('update_hand', current_player.to_dict()["hand"], room=current_player.sid)
