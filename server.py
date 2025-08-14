@@ -41,7 +41,6 @@ def on_join(data):
 
 @socketio.on('start_game')
 def on_start_game():
-    sid = str(request.sid)
     try:
         game.start_game()
     except ValueError as e:
@@ -59,15 +58,13 @@ def on_start_game():
     # Envoyer à chaque joueur sa main privée
     for player in game.players:
         emit('update_hand', player.to_dict()["hand"], room=player.sid)
-
-    emit('is_playing', sid==current_player.sid, broadcast=True)
+        emit('is_playing', player.sid == current_player.sid, room=player.sid)    
 
 @socketio.on('play')
 def on_play(data):
     """
     data attendu depuis le client : {'cardIndex': int}
     """
-    sid = str(request.sid)
     cardIndex = data.get('cardIndex', 0)  # index de la carte à défausser
     current_player = game.get_current_player()
 
@@ -87,9 +84,9 @@ def on_play(data):
         game.draw_for_player(current_player.sid)
         emit('update_hand', current_player.to_dict()["hand"], room=current_player.sid)
         #emit('update_game_state', game.to_dict(), broadcast=True)
-
-    emit('is_playing', sid==current_player.sid, broadcast=True)
     
+    for player in game.players:
+        emit('is_playing', player.sid == current_player.sid, room=player.sid)    
 
 @socketio.on('disconnect')
 def on_disconnect():
