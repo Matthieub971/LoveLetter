@@ -66,17 +66,17 @@ class Game:
     def setup_deck(self):
         """Crée le deck avec les cartes et mélange"""
         self.deck = [
-            Card("Espionne", 0, "/static/cartes/Espionne.png"),
-            Card("Garde", 1, "/static/cartes/Garde.png"),
-            Card("Prêtre", 2, "/static/cartes/Pretre.png"),
-            Card("Baron", 3, "/static/cartes/Baron.png"),
-            Card("Servante", 4, "/static/cartes/Servante.png"),
-            Card("Prince", 5, "/static/cartes/Prince.png"),
-            Card("Chancelier", 6, "/static/cartes/Chancelier.png"),
+            Card("Espionne", 0, "/static/cartes/Espionne.png") * 2,
+            Card("Garde", 1, "/static/cartes/Garde.png") * 6,
+            Card("Prêtre", 2, "/static/cartes/Pretre.png") * 2,
+            Card("Baron", 3, "/static/cartes/Baron.png") * 2,
+            Card("Servante", 4, "/static/cartes/Servante.png") * 2,
+            Card("Prince", 5, "/static/cartes/Prince.png") * 2,
+            Card("Chancelier", 6, "/static/cartes/Chancelier.png") * 2,
             Card("Roi", 7, "/static/cartes/Roi.png"),
             Card("Comtesse", 8, "/static/cartes/Comtesse.png"),
             Card("Princesse", 9, "/static/cartes/Princesse.png"),
-        ] * 2  # Ex : 2 exemplaires de chaque carte pour les tests
+        ]   
         random.shuffle(self.deck)
 
     def start_game(self):
