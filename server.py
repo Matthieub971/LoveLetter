@@ -54,7 +54,10 @@ def on_start_game():
     if current_player:
         # Tirer une carte pour le joueur actif
         game.draw_for_player(current_player.sid)
-        emit('update_hand', current_player.to_private_dict()["hand"], room=current_player.sid)
+    
+    # Envoyer à chaque joueur sa main privée
+    for player in game.players:
+        emit('update_hand', player.to_private_dict()["hand"], room=player.sid)
 
 @socketio.on('play')
 def on_play(data):
