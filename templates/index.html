@@ -13,6 +13,8 @@
         #top-bar { position: fixed; top: 10px; right: 10px; }
         #player-cards img { margin: 5px; border: 2px solid #aaa; border-radius: 5px; background: white; cursor: pointer; }
         #player-cards img.selected { border-color: red; }
+        .center-buttons { text-align: center; }
+        .center-buttons button { margin: 5px; }
     </style>
 </head>
 <body>
@@ -36,8 +38,10 @@
         <h2>Votre main</h2>
         <div id="player-cards"></div>
         <br>
-        <button onclick="goToBoard()">Voir le plateau</button>
-        <button id="play-btn" onclick="play()">Jouer</button>
+        <div class="center-buttons">
+            <button onclick="goToBoard()">Voir le plateau</button>
+            <button id="play-btn" onclick="play()">Jouer</button>
+        </div>
     </div>
 
     <!-- SECTION 3 : Plateau -->
