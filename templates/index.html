@@ -33,22 +33,16 @@
         <button id="start-btn" onclick="startGame()" style="display:none;">Lancer la partie</button>
     </div>
 
-    <!-- SECTION 2 : Main du joueur -->
+    <!-- SECTION 2+3 : Main du joueur + Plateau -->
     <div id="section-hand" class="section">
         <h2>Votre main</h2>
         <div id="player-cards"></div>
         <br>
-        <button onclick="goToBoard()">Voir le plateau</button>
         <button id="play-btn" onclick="play()">Jouer</button>
-    </div>
 
-    <!-- SECTION 3 : Plateau -->
-    <div id="section-board" class="section">
         <h2>Plateau de jeu</h2>
         <div id="players-list" style="display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 15px;"></div>
         <br>
-        <button onclick="goToHand()">Retour à ma main</button>
-        <button id="play-btn-board" onclick="play()">Jouer</button>
     </div>
 
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
@@ -77,10 +71,6 @@
             if (confirm("Êtes-vous sûr de vouloir quitter et réinitialiser la partie ?")) {
                 socket.emit('reset_game');
             }
-        }
-
-        function goToBoard() {
-            showSection("section-board");
         }
 
         function goToHand() {
@@ -148,7 +138,6 @@
         // Afficher les boutons spécifiques à celui qui joue
         socket.on('is_playing', (status) => {
             document.getElementById('play-btn').style.display = status ? 'inline-block' : 'none';
-            document.getElementById('play-btn-board').style.display = status ? 'inline-block' : 'none';
         });
 
         socket.on('update_players', (players) => {
