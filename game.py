@@ -43,6 +43,8 @@ class Player:
         """
         if index < 0 or index >= len(self.hand):
             raise IndexError("Index de carte invalide")
+        
+        self.servante = None
 
         card = self.hand[index]
 
@@ -50,6 +52,8 @@ class Player:
             self.espionne = card
         elif card.value == 4:
             self.servante = card
+
+        self.discard_card(index)
 
         return None
 

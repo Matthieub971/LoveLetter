@@ -79,7 +79,6 @@ def on_play(data):
     if current_player:
         # Défausser la carte sélectionnée
         current_player.handle_card(cardIndex)
-        current_player.discard_card(cardIndex)
 
         # Mettre à jour la main du joueur actuel
         emit('update_hand', current_player.to_dict()["hand"], room=current_player.sid)
