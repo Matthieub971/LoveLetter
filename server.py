@@ -3,6 +3,7 @@ eventlet.monkey_patch()
 
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO, emit
+from game import Game  # <-- notre nouveau module de jeu
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -10,20 +11,7 @@ socketio = SocketIO(app)
 # ========================
 # Variables globales
 # ========================
-# { sid: { "username": str, "hand": list[dict] } }
-players = {}
-host_sid = None
-turn_order = []
-current_turn_index = 0
-
-# ========================
-# Cartes fictives pour test
-# ========================
-CARD_IMAGES = {
-    "Garde": "/static/cartes/Garde.png",
-    "Prêtre": "/static/cartes/Pretre.png",
-    "Baron": "/static/cartes/Baron.png"
-}
+game = Game()  # Objet unique pour gérer le jeu
 
 # ========================
 # Routes HTTP
@@ -37,97 +25,76 @@ def index():
 # ========================
 @socketio.on('join')
 def on_join(data):
-    global host_sid
     sid = str(request.sid)
     username = data.get("username")
     if not username:
         return
 
-    # Ajouter le joueur
-    players[sid] = {"username": username, "hand": []}
-    turn_order.append(sid)
-
-    # Si pas d'hôte encore, ce joueur devient l'hôte
-    if host_sid is None:
-        host_sid = sid
-
-    # Donner 1 carte de départ
-    players[sid]["hand"] = [{"name": "Garde", "image": CARD_IMAGES["Garde"]}]
-    emit('update_hand', players[sid]["hand"], room=sid)
+    # Ajouter le joueur dans Game
+    game.add_player(sid, username)
 
     # Envoyer la liste des joueurs à tout le monde
-    emit('player_list', [p["username"] for p in players.values()], broadcast=True)
+    emit('player_list', [p.name for p in game.players], broadcast=True)
 
-    # Dire à ce joueur s'il est hôte
-    emit('is_host', sid == host_sid, room=sid)
+    # Dire à ce joueur s'il est hôte (premier joueur)
+    emit('is_host', sid == game.players[0].sid, room=sid)
 
 @socketio.on('start_game')
 def on_start_game():
-    global current_turn_index
-    current_turn_index = 0
+    try:
+        game.start_game()
+    except ValueError as e:
+        emit('error', str(e), room=request.sid)
+        return
+
     emit('start_game', broadcast=True)
-    if turn_order:
-        give_turn(turn_order[current_turn_index])
 
-def give_turn(sid):
-    """Donner 2 cartes au joueur actif (rarement 3)"""
-    players[sid]["hand"] = [
-        {"name": "Garde", "image": CARD_IMAGES["Garde"]},
-        {"name": "Prêtre", "image": CARD_IMAGES["Prêtre"]}
-    ]
-    if players[sid]["username"].lower() == "special":
-        players[sid]["hand"].append({"name": "Baron", "image": CARD_IMAGES["Baron"]})
-
-    emit('update_hand', players[sid]["hand"], room=sid)
+    # Envoyer la main privée du joueur actif
+    current_player = game.get_current_player()
+    if current_player:
+        emit('update_hand', current_player.to_private_dict()["hand"], room=current_player.sid)
 
 @socketio.on('end_turn')
 def on_end_turn():
-    """Fin du tour → on remet le joueur précédent à 1 carte et on donne le tour au suivant"""
-    global current_turn_index
-    if not turn_order:
-        return
+    # Joueur précédent : réduire sa main à 1 carte
+    prev_player = game.get_current_player()
+    if prev_player and prev_player.hand:
+        prev_player.hand = [prev_player.hand[0]]
+        emit('update_hand', prev_player.to_private_dict()["hand"], room=prev_player.sid)
 
-    # Joueur précédent
-    sid_prev = turn_order[current_turn_index]
-    if players[sid_prev]["hand"]:
-        players[sid_prev]["hand"] = [players[sid_prev]["hand"][0]]
-        emit('update_hand', players[sid_prev]["hand"], room=sid_prev)
-
-    # Joueur suivant
-    current_turn_index = (current_turn_index + 1) % len(turn_order)
-    sid_next = turn_order[current_turn_index]
-    give_turn(sid_next)
+    # Passer au joueur suivant
+    game.next_turn()
+    current_player = game.get_current_player()
+    if current_player:
+        # Tirer une carte pour le joueur actif
+        game.draw_for_player(current_player.sid)
+        emit('update_hand', current_player.to_private_dict()["hand"], room=current_player.sid)
 
 @socketio.on('disconnect')
 def on_disconnect():
-    global host_sid, current_turn_index
     sid = str(request.sid)
+    player = game.get_player_by_sid(sid)
 
-    # Retirer le joueur
-    if sid in players:
-        turn_order.remove(sid)
-        players.pop(sid, None)
+    if player:
+        game.remove_player(sid)
 
-    # Si c'était l'hôte → passer au prochain
-    if sid == host_sid:
-        host_sid = next(iter(players), None)
-        if host_sid:
-            emit('is_host', True, room=host_sid)
+    # Si c'était l'hôte → passer au premier joueur
+    if game.players:
+        host_sid = game.players[0].sid
+        emit('is_host', True, room=host_sid)
+    else:
+        host_sid = None
 
-    # Ajuster current_turn_index si besoin
-    if current_turn_index >= len(turn_order):
-        current_turn_index = 0
+    # Ajuster current_turn_index si nécessaire
+    if game.current_turn_index >= len(game.players):
+        game.current_turn_index = 0
 
     # Envoyer liste mise à jour
-    emit('player_list', [p["username"] for p in players.values()], broadcast=True)
+    emit('player_list', [p.name for p in game.players], broadcast=True)
 
 @socketio.on('reset_game')
 def on_reset_game():
-    global players, host_sid, turn_order, current_turn_index
-    players = {}
-    host_sid = None
-    turn_order = []
-    current_turn_index = 0
+    game.reset_game()
     emit('player_list', [], broadcast=True)
     emit('game_reset', broadcast=True)
 
