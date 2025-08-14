@@ -11,6 +11,7 @@
         #players { margin-top: 10px; }
         button { padding: 10px 20px; margin: 10px; }
         #top-bar { position: fixed; top: 10px; right: 10px; }
+        #player-cards img { margin: 5px; border: 1px solid #aaa; border-radius: 5px; background: white; }
     </style>
 </head>
 <body>
@@ -33,10 +34,10 @@
     <!-- SECTION 2 : Main du joueur -->
     <div id="section-hand" class="section">
         <h2>Votre main</h2>
-        <img id="card1" src="" alt="Carte 1" width="150">
-        <img id="card2" src="" alt="Carte 2" width="150">
+        <div id="player-cards"></div>
         <br>
         <button onclick="goToBoard()">Voir le plateau</button>
+        <button id="end-turn-btn" onclick="endTurn()">Fin du tour</button>
     </div>
 
     <!-- SECTION 3 : Plateau -->
@@ -45,6 +46,7 @@
         <div id="board-state"></div>
         <br>
         <button onclick="goToHand()">Retour à ma main</button>
+        <button id="end-turn-btn-board" onclick="endTurn()">Fin du tour</button>
     </div>
 
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
@@ -82,6 +84,10 @@
             showSection("section-hand");
         }
 
+        function endTurn() {
+            socket.emit('end_turn');
+        }
+
         // Réception de la liste des joueurs
         socket.on('player_list', players => {
             const playersDiv = document.getElementById('players');
@@ -106,6 +112,20 @@
             showSection("section-login");
             document.getElementById('start-btn').style.display = 'none';
             document.getElementById('quit-btn').style.display = 'none';
+        });
+
+        // Mettre à jour les cartes affichées
+        socket.on('update_hand', cards => {
+            const container = document.getElementById('player-cards');
+            container.innerHTML = ''; // vide les cartes existantes
+
+            cards.forEach(card => {
+                const img = document.createElement('img');
+                img.src = card.image; // chemin de l'image envoyé par le serveur
+                img.alt = card.name;
+                img.width = 150;
+                container.appendChild(img);
+            });
         });
     </script>
 
