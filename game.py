@@ -65,18 +65,19 @@ class Game:
 
     def setup_deck(self):
         """Crée le deck avec les cartes et mélange"""
-        self.deck = [
-            Card("Espionne", 0, "/static/cartes/Espionne.png") * 2,
-            Card("Garde", 1, "/static/cartes/Garde.png") * 6,
-            Card("Prêtre", 2, "/static/cartes/Pretre.png") * 2,
-            Card("Baron", 3, "/static/cartes/Baron.png") * 2,
-            Card("Servante", 4, "/static/cartes/Servante.png") * 2,
-            Card("Prince", 5, "/static/cartes/Prince.png") * 2,
-            Card("Chancelier", 6, "/static/cartes/Chancelier.png") * 2,
-            Card("Roi", 7, "/static/cartes/Roi.png"),
-            Card("Comtesse", 8, "/static/cartes/Comtesse.png"),
-            Card("Princesse", 9, "/static/cartes/Princesse.png"),
-        ]   
+        self.deck = (
+            [Card("Espionne", 0, "/static/cartes/Espionne.png") for _ in range(2)] +
+            [Card("Garde", 1, "/static/cartes/Garde.png") for _ in range(6)] +
+            [Card("Prêtre", 2, "/static/cartes/Pretre.png") for _ in range(2)] +
+            [Card("Baron", 3, "/static/cartes/Baron.png") for _ in range(2)] +
+            [Card("Servante", 4, "/static/cartes/Servante.png") for _ in range(2)] +
+            [Card("Prince", 5, "/static/cartes/Prince.png") for _ in range(2)] +
+            [Card("Chancelier", 6, "/static/cartes/Chancelier.png") for _ in range(2)] +
+            [Card("Roi", 7, "/static/cartes/Roi.png")] +
+            [Card("Comtesse", 8, "/static/cartes/Comtesse.png")] +
+            [Card("Princesse", 9, "/static/cartes/Princesse.png")]
+        )
+
         random.shuffle(self.deck)
 
     def start_game(self):
