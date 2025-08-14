@@ -55,12 +55,20 @@ def on_start_game():
         emit('update_hand', current_player.to_private_dict()["hand"], room=current_player.sid)
 
 @socketio.on('end_turn')
-def on_end_turn():
-    # Joueur précédent : réduire sa main à 1 carte
-    prev_player = game.get_current_player()
-    if prev_player and prev_player.hand:
-        prev_player.hand = [prev_player.hand[0]]
-        emit('update_hand', prev_player.to_private_dict()["hand"], room=prev_player.sid)
+def on_end_turn(data):
+    """
+    data attendu depuis le client : {'cardIndex': int}
+    """
+    cardIndex = data.get('cardIndex', 0)  # index de la carte à défausser
+    current_player = game.get_current_player()
+
+    if current_player:
+        # Défausser la carte sélectionnée
+        discarded_card = current_player.discard_card(cardIndex)
+        print(f"{current_player.name} a défaussé : {discarded_card.name if discarded_card else 'aucune'}")
+
+        # Mettre à jour la main du joueur actuel
+        emit('update_hand', current_player.to_private_dict()["hand"], room=current_player.sid)
 
     # Passer au joueur suivant
     game.next_turn()
@@ -69,6 +77,7 @@ def on_end_turn():
         # Tirer une carte pour le joueur actif
         game.draw_for_player(current_player.sid)
         emit('update_hand', current_player.to_private_dict()["hand"], room=current_player.sid)
+        #emit('update_game_state', game.to_dict(), broadcast=True)
 
 @socketio.on('disconnect')
 def on_disconnect():

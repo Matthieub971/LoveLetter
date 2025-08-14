@@ -11,12 +11,12 @@
         #players { margin-top: 10px; }
         button { padding: 10px 20px; margin: 10px; }
         #top-bar { position: fixed; top: 10px; right: 10px; }
-        #player-cards img { margin: 5px; border: 1px solid #aaa; border-radius: 5px; background: white; }
+        #player-cards img { margin: 5px; border: 2px solid #aaa; border-radius: 5px; background: white; cursor: pointer; }
+        #player-cards img.selected { border-color: red; }
     </style>
 </head>
 <body>
 
-    <!-- Barre fixe en haut à droite pour les boutons globaux -->
     <div id="top-bar">
         <button id="quit-btn" onclick="quitGame()" style="display:none;">Quitter la partie</button>
     </div>
@@ -53,6 +53,7 @@
     <script>
         const socket = io();
         let myUsername = null;
+        let selectedCardIndex = null;
 
         function showSection(id) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('visible'));
@@ -85,7 +86,19 @@
         }
 
         function endTurn() {
-            socket.emit('end_turn');
+            if (selectedCardIndex === null) {
+                alert("Veuillez sélectionner une carte à jouer !");
+                return;
+            }
+            socket.emit('end_turn', { cardIndex: selectedCardIndex });
+            selectedCardIndex = null;
+        }
+
+        function selectCard(index) {
+            selectedCardIndex = index;
+            document.querySelectorAll('#player-cards img').forEach((img, i) => {
+                img.classList.toggle('selected', i === index);
+            });
         }
 
         // Réception de la liste des joueurs
@@ -118,12 +131,14 @@
         socket.on('update_hand', cards => {
             const container = document.getElementById('player-cards');
             container.innerHTML = ''; // vide les cartes existantes
+            selectedCardIndex = null;
 
-            cards.forEach(card => {
+            cards.forEach((card, index) => {
                 const img = document.createElement('img');
-                img.src = card.image; // chemin de l'image envoyé par le serveur
+                img.src = card.image;
                 img.alt = card.name;
                 img.width = 150;
+                img.onclick = () => selectCard(index);
                 container.appendChild(img);
             });
         });
