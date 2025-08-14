@@ -88,6 +88,9 @@ class Game:
 
         self.current_turn_index = 0
 
+        self.draw_for_player(self.players[self.current_turn_index ].sid)
+
+
     def draw_for_player(self, sid: str):
         """Donner une carte du deck à un joueur"""
         player = self.get_player_by_sid(sid)

@@ -49,11 +49,7 @@ def on_start_game():
 
     emit('start_game', broadcast=True)
 
-    # Envoyer la main privée du joueur actif
     current_player = game.get_current_player()
-    if current_player:
-        # Tirer une carte pour le joueur actif
-        game.draw_for_player(current_player.sid)
 
     # Envoyer à chaque joueur sa main privée
     for player in game.players:
