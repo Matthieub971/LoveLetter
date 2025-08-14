@@ -93,7 +93,18 @@ def on_play(data):
         #emit('update_game_state', game.to_dict(), broadcast=True)
     
     for player in game.players:
-        emit('is_playing', player.sid == current_player.sid, room=player.sid)    
+        emit('is_playing', player.sid == current_player.sid, room=player.sid)  
+        emit('update_players', [
+            {
+                "name": player.name,
+                "eliminated": player.eliminated,
+                "card": (
+                    player.servante.image_path if player.servante 
+                    else player.espionne.image_path if player.espionne 
+                    else "/static/cartes/Dos.png"
+                )
+            }
+        ], broadcast=True)  
 
 @socketio.on('disconnect')
 def on_disconnect():
