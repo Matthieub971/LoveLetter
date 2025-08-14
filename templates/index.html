@@ -13,8 +13,6 @@
         #top-bar { position: fixed; top: 10px; right: 10px; }
         #player-cards img { margin: 5px; border: 2px solid #aaa; border-radius: 5px; background: white; cursor: pointer; }
         #player-cards img.selected { border-color: red; }
-        .center-buttons { text-align: center; }
-        .center-buttons button { margin: 5px; }
     </style>
 </head>
 <body>
@@ -38,10 +36,8 @@
         <h2>Votre main</h2>
         <div id="player-cards"></div>
         <br>
-        <div class="center-buttons">
-            <button onclick="goToBoard()">Voir le plateau</button>
-            <button id="play-btn" onclick="play()">Jouer</button>
-        </div>
+        <button onclick="goToBoard()">Voir le plateau</button>
+        <button id="play-btn" onclick="play()">Jouer</button>
     </div>
 
     <!-- SECTION 3 : Plateau -->
@@ -149,8 +145,8 @@
 
         // Afficher les boutons spécifiques à celui qui joue
         socket.on('is_playing', (status) => {
-            document.getElementById('play-btn').style.display = status ? 'block' : 'none';
-            document.getElementById('play-btn-board').style.display = status ? 'block' : 'none';
+            document.getElementById('play-btn').style.display = status ? 'inline-block' : 'none';
+            document.getElementById('play-btn-board').style.display = status ? 'inline-block' : 'none';
         });
     </script>
 
