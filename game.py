@@ -98,6 +98,7 @@ class Game:
         )
 
         random.shuffle(self.deck)
+        self.deck.pop(0)
 
     def start_game(self):
         """Initialise la partie"""

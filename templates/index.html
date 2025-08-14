@@ -13,8 +13,24 @@
         #top-bar { position: fixed; top: 10px; right: 10px; }
         #player-cards img { margin: 5px; border: 2px solid #aaa; border-radius: 5px; background: white; cursor: pointer; }
         #player-cards img.selected { border-color: red; }
-        .player-info { display: flex; align-items: center; margin-bottom: 8px; }
-        .player-card { width: 50px; height: auto; margin-right: 10px; border-radius: 5px; border: 1px solid #ccc; }
+        #players-list {
+            display: flex;
+            flex-direction: column;
+            align-items: center;       /* Centre horizontalement */
+            margin-bottom: 15px;
+            width: 100%;               /* Prend toute la largeur dispo */
+        }
+
+        .player-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .player-card {
+            width: 100px;
+            height: auto;
+        }
     </style>
 </head>
 <body>
@@ -41,7 +57,7 @@
         <button id="play-btn" onclick="play()">Jouer</button>
 
         <h2>Plateau de jeu</h2>
-        <div id="players-list" style="display: flex; flex-direction: column; align-items: flex-start; margin-bottom: 15px;"></div>
+        <div id="players-list"></div>
         <br>
     </div>
 
@@ -106,7 +122,7 @@
 
         // Afficher les boutons spécifiques à l'hôte
         socket.on('is_host', (status) => {
-            document.getElementById('start-btn').style.display = status ? 'block' : 'none';
+            document.getElementById('start-btn').style.display = status ? 'inline-block' : 'none';
             document.getElementById('quit-btn').style.display = status ? 'block' : 'none';
         });
 
