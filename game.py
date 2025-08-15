@@ -52,7 +52,7 @@ class Player:
         match card.value:
             case 0:
                 self.espionne = card
-                self.players[self.current_turn_index].is_playing = 0
+                self.is_playing = 0
             case 1:
                 if self.is_playing == 2:
                     self.is_playing = 3
@@ -64,18 +64,18 @@ class Player:
                 self.is_playing = 2
             case 4:
                 self.servante = card
-                self.players[self.current_turn_index].is_playing = 0
+                self.is_playing = 0
             case 5:
                 self.is_playing = 2
-            case 6:
-                self.players[self.current_turn_index].is_playing = 0
+            case 6:                
+                self.is_playing = 0
             case 7:
                 self.is_playing = 2
             case 8:
-                self.players[self.current_turn_index].is_playing = 0
+                self.is_playing = 0
             case 9:
                 self.eliminated = True
-                self.players[self.current_turn_index].is_playing = 0
+                self.is_playing = 0
 
         return self.discard_card(index)
 
@@ -229,9 +229,9 @@ class Game:
 
         match last_card:
             case 1:
-                pass
+                current_player.is_playing = 0
             case 2:
-                pass
+                current_player.is_playing = 0
             case 3:
                 if player.hand[0].value > current_player.hand[0].value:
                     current_player.eliminated = True
@@ -241,6 +241,7 @@ class Game:
                 current_player.is_playing = 0
             case 5:
                 self.discard_pile.append(player.hand[0])
+                player.hand.pop(0)
                 self.draw_for_player(sid)
 
                 current_player.is_playing = 0
