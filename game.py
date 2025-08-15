@@ -175,4 +175,4 @@ class Game:
         ]
 
     def get_discard_pile(self):
-        return self.discard_pile
+        return [card.to_dict() for card in self.discard_pile]
