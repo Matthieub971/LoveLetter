@@ -167,7 +167,7 @@ class Game:
             {
                 "name": player.name,
                 "eliminated": player.eliminated,
-                "status": player == self.players[self.current_turn_index],
+                "status": player.sid == self.players[self.current_turn_index].sid,
                 "card": (
                     player.servante.path if player.servante 
                     else player.espionne.path if player.espionne 
