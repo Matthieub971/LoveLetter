@@ -94,6 +94,24 @@ def on_play(data):
     emit('update_players', game.get_infos_players(), broadcast=True) 
     emit('update_discard_pile', game.get_discard_pile(), broadcast=True)
 
+@socketio.on('choose_card')
+def on_play(data):
+    """
+    data attendu depuis le client : {'cardIndex': int}
+    """
+    cardIndex = data.get('cardIndex', 0)  # index de la carte à défausser
+    current_player = game.get_current_player()
+
+    if current_player:
+        # Défausser la carte sélectionnée
+        game.handle_turn(current_player.handle_card(cardIndex))
+    
+    for player in game.players:
+        emit('is_playing', player.is_playing, room=player.sid)
+        emit('update_hand', player.get_hand(), room=player.sid)  
+
+    emit('update_players', game.get_infos_players(), broadcast=True) 
+    emit('update_discard_pile', game.get_discard_pile(), broadcast=True)
 
 @socketio.on('disconnect')
 def on_disconnect():

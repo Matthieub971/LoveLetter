@@ -66,10 +66,18 @@ class Player:
                 self.servante = card
                 self.is_playing = 0
             case 5:
+                for i in range(2):
+                    if self.hand[i].value == 8:
+                        self.is_playing = 0
+                        return self.discard_card(i)
                 self.is_playing = 2
             case 6:                
-                self.is_playing = 0
+                self.is_playing = 4
             case 7:
+                for i in range(2):
+                    if self.hand[i].value == 8:
+                        self.is_playing = 0
+                        return self.discard_card(i)
                 self.is_playing = 2
             case 8:
                 self.is_playing = 0
@@ -100,6 +108,7 @@ class Game:
         self.discard_pile = []  # Liste d'objets Card
         self.started = False
         self.current_turn_index = 0
+        self.roles = []
 
     def add_player(self, sid: str, name: str):
         self.players.append(Player(sid, name))
@@ -125,12 +134,27 @@ class Game:
         random.shuffle(self.deck)
         self.deck.pop(0)
 
+    def setup_roles(self):
+        """Crée le deck avec les cartes et mélange"""
+        self.deck = (
+            [Card("Espionne", 0, "/static/cartes/Espionne.png")] +
+            [Card("Prêtre", 2, "/static/cartes/Pretre.png")] +
+            [Card("Baron", 3, "/static/cartes/Baron.png")] +
+            [Card("Servante", 4, "/static/cartes/Servante.png")] +
+            [Card("Prince", 5, "/static/cartes/Prince.png")] +
+            [Card("Chancelier", 6, "/static/cartes/Chancelier.png")] +
+            [Card("Roi", 7, "/static/cartes/Roi.png")] +
+            [Card("Comtesse", 8, "/static/cartes/Comtesse.png")] +
+            [Card("Princesse", 9, "/static/cartes/Princesse.png")]
+        )
+
     def start_game(self):
         """Initialise la partie"""
         if len(self.players) < 2:
             raise ValueError("Il faut au moins 2 joueurs pour commencer")
 
         self.started = True
+        self.setup_roles()
         self.setup_deck()
 
         # Distribuer 1 carte à chaque joueur
@@ -210,6 +234,13 @@ class Game:
     def get_discard_pile(self):
         return [card.to_dict() for card in self.discard_pile]
     
+    def get_roles(self):
+        return [card.to_dict() for card in self.roles]
+    
+    def check_winner(self):
+        for player in self.players:
+            pass
+    
     def handle_turn(self, card : Card):
         if card:
             # Défausse la carte
@@ -218,6 +249,10 @@ class Game:
             if self.players[self.current_turn_index].is_playing == 0:
                 # Passer au joueur suivant
                 self.next_turn()
+            elif self.players[self.current_turn_index].is_playing == 4:
+                # Tirer une carte pour le joueur actif
+                self.draw_for_player(self.players[self.current_turn_index].sid)
+                self.draw_for_player(self.players[self.current_turn_index].sid)
 
     def handle_player(self, sid):
         current_player = self.get_current_player()
@@ -255,5 +290,21 @@ class Game:
         if self.players[self.current_turn_index].is_playing == 0:
                 # Passer au joueur suivant
                 self.next_turn()
+
+    def handle_chancellor(self, index):
+        current_player = self.get_current_player()
+
+        self.deck.append(current_player.hand[index])
+        current_player.hand.pop(index)
+
+        if len(current_player.hand) == 1:
+            current_player.is_playing = 0
+
+        if self.players[self.current_turn_index].is_playing == 0:
+                # Passer au joueur suivant
+                self.next_turn()
+
+
+
 
 

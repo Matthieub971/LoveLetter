@@ -62,8 +62,9 @@
         <div id="player-cards"></div>
         <br>
         <button id="play-btn" onclick="play()">Jouer</button>
-        <button id="chosse-player-btn" onclick="choosePlayer()">Choisi un Joueur</button>
-        <button id="choose-role-btn" onclick="chooseRole()">Choisi un Rôle</button>
+        <button id="chosse-player-btn" onclick="choosePlayer()">Choisir un Joueur</button>
+        <button id="choose-role-btn" onclick="chooseRole()">Choisir un Rôle</button>
+        <button id="choose-card-btn" onclick="chooseCard()">Placer en dessous du deck</button>
 
         <h2>Défausse</h2>
         <div id="discard-pile"></div>
@@ -121,6 +122,15 @@
                 return;
             }
             socket.emit('play', { cardIndex: selectedCardIndex });
+            selectedCardIndex = null;
+        }
+
+        function chooseCard() {
+            if (selectedCardIndex === null) {
+                alert("Veuillez sélectionner une carte à jouer !");
+                return;
+            }
+            socket.emit('choose_card', { cardIndex: selectedCardIndex });
             selectedCardIndex = null;
         }
 
@@ -191,6 +201,8 @@
             const playBtn = document.getElementById('play-btn');
             const choosePlayerBtn = document.getElementById('chosse-player-btn');
             const chooseRoleBtn = document.getElementById('choose-role-btn');
+            const chooseCardBtn = document.getElementById('choose-card-btn');
+
 
             // Tout masquer par défaut
             playBtn.style.display = 'none';
@@ -205,6 +217,9 @@
             } 
             else if (status === 3) {
                 chooseRoleBtn.style.display = 'inline-block';
+            }
+            else if (status === 4) {
+                chooseCardBtn.style.display = 'inline-block';
             }
         });
 
