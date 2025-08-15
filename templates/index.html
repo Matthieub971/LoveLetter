@@ -180,6 +180,8 @@
                 div.appendChild(img);
                 div.appendChild(span);
                 playersList.appendChild(div);
+
+                document.getElementById('play-btn').style.display = player.status ? 'inline-block' : 'none';
             });
         });
 

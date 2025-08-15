@@ -180,4 +180,8 @@ class Game:
         return [card.to_dict() for card in self.discard_pile]
     
     def handle_turn(self, card : Card):
+        # Défausse la carte
         self.discard_pile.append(card)
+
+        # Passer au joueur suivant
+        self.next_turn()

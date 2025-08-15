@@ -54,7 +54,7 @@ def on_start_game():
     # Envoyer à chaque joueur sa main privée
     for player in game.players:
         emit('update_hand', player.get_hand(), room=player.sid)
-        emit('is_playing', player.sid == current_player.sid, room=player.sid) 
+        #emit('is_playing', player.sid == current_player.sid, room=player.sid) 
 
     emit('update_players', game.get_infos_players(), broadcast=True)
     emit('update_discard_pile', game.get_discard_pile(), broadcast=True)
@@ -70,13 +70,9 @@ def on_play(data):
     if current_player:
         # Défausser la carte sélectionnée
         game.handle_turn(current_player.handle_card(cardIndex))
-        
-    # Passer au joueur suivant
-    game.next_turn()
-    current_player = game.get_current_player()
     
     for player in game.players:
-        emit('is_playing', player.sid == current_player.sid, room=player.sid)
+        #emit('is_playing', player.sid == game.get_current_player().sid, room=player.sid)
         emit('update_hand', player.get_hand(), room=player.sid)  
 
     emit('update_players', game.get_infos_players(), broadcast=True) 
