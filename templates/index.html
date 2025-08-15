@@ -226,7 +226,7 @@
                 span.textContent = `${player.name} ${player.eliminated ? ' - Éliminé' : ''}`;
 
                 // On rend cliquable pour la sélection
-                div.onclick = () => selectPlayer(player.name);
+                div.onclick = () => selectPlayer(player.sid);
 
                 div.appendChild(img);
                 div.appendChild(span);
