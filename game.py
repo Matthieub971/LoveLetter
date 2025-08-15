@@ -66,6 +66,9 @@ class Player:
             "hand": [card.to_dict() for card in self.hand],
             "eliminated": self.eliminated
         }
+    
+    def get_hand(self):
+        return [card.to_dict() for card in self.hand]
 
 
 class Game:
