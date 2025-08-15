@@ -25,6 +25,7 @@ class Player:
         self.eliminated = False
         self.espionne = None
         self.servante = None
+        self.is_playing = 0
 
     def draw_card(self, card: Card):
         self.hand.append(card)
@@ -114,6 +115,7 @@ class Game:
             self.draw_for_player(player.sid)
 
         self.current_turn_index = 0
+        self.players[self.current_turn_index].is_playing = 1
 
         self.discard_pile.append(Card("Dos", -1, "/static/cartes/Dos.png"))
 
@@ -136,7 +138,9 @@ class Game:
         """Passer au joueur suivant"""
         if not self.players:
             return
+        self.players[self.current_turn_index].is_playing = 0
         self.current_turn_index = (self.current_turn_index + 1) % len(self.players)
+        self.players[self.current_turn_index].is_playing = 1
 
         # Tirer une carte pour le joueur actif
         self.draw_for_player(self.players[self.current_turn_index].sid)
@@ -167,7 +171,6 @@ class Game:
             {
                 "name": player.name,
                 "eliminated": player.eliminated,
-                "status": player.sid == self.players[self.current_turn_index].sid,
                 "card": (
                     player.servante.path if player.servante 
                     else player.espionne.path if player.espionne 
@@ -180,8 +183,9 @@ class Game:
         return [card.to_dict() for card in self.discard_pile]
     
     def handle_turn(self, card : Card):
-        # Défausse la carte
-        self.discard_pile.append(card)
+        if card:
+            # Défausse la carte
+            self.discard_pile.append(card)
 
-        # Passer au joueur suivant
-        self.next_turn()
+            # Passer au joueur suivant
+            self.next_turn()

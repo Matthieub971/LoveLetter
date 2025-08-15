@@ -181,10 +181,6 @@
                 div.appendChild(span);
                 playersList.appendChild(div);
             });
-
-            // Trouver le joueur courant
-            const currentPlayer = players.find(p => p.status);
-            document.getElementById('play-btn').style.display = currentPlayer ? 'inline-block' : 'none';
         });
 
         socket.on('update_discard_pile', (discardPile) => {
