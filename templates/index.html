@@ -32,6 +32,12 @@
             width: 100px;
             height: auto;
         }
+
+        .selected-player {
+            border: 2px solid blue;
+            border-radius: 5px;
+            padding: 5px;
+        }
     </style>
 </head>
 <body>
@@ -56,6 +62,8 @@
         <div id="player-cards"></div>
         <br>
         <button id="play-btn" onclick="play()">Jouer</button>
+        <button id="chosse-player-btn" onclick="choosePlayer()">Choisi un Joueur</button>
+        <button id="choose-role-btn" onclick="chooseRole()">Choisi un Rôle</button>
 
         <h2>Défausse</h2>
         <div id="discard-pile"></div>
@@ -71,6 +79,7 @@
         const socket = io();
         let myUsername = null;
         let selectedCardIndex = null;
+        let selectedPlayerName = null;
 
         function showSection(id) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('visible'));
@@ -98,6 +107,14 @@
             showSection("section-hand");
         }
 
+        // --- Sélection d'une carte ---
+        function selectCard(index) {
+            selectedCardIndex = index;
+            document.querySelectorAll('#player-cards img').forEach((img, i) => {
+                img.classList.toggle('selected', i === index);
+            });
+        }
+
         function play() {
             if (selectedCardIndex === null) {
                 alert("Veuillez sélectionner une carte à jouer !");
@@ -107,10 +124,23 @@
             selectedCardIndex = null;
         }
 
-        function selectCard(index) {
-            selectedCardIndex = index;
-            document.querySelectorAll('#player-cards img').forEach((img, i) => {
-                img.classList.toggle('selected', i === index);
+        // --- Sélection d'un joueur ---
+        function selectPlayer(playerName) {
+            selectedPlayerName = playerName;
+            document.querySelectorAll('#players-list .player-info').forEach(div => {
+                div.classList.toggle('selected-player', div.dataset.name === playerName);
+            });
+        }
+
+        function choosePlayer() {
+            if (!selectedPlayerName) {
+                alert("Veuillez sélectionner un joueur !");
+                return;
+            }
+            socket.emit('choose_player', { player: selectedPlayerName });
+            selectedPlayerName = null;
+            document.querySelectorAll('#players-list .player-info').forEach(div => {
+                div.classList.remove('selected-player');
             });
         }
 
@@ -158,7 +188,24 @@
 
         // Afficher les boutons spécifiques à celui qui joue
         socket.on('is_playing', (status) => {
-            document.getElementById('play-btn').style.display = status ? 'inline-block' : 'none';
+            const playBtn = document.getElementById('play-btn');
+            const choosePlayerBtn = document.getElementById('chosse-player-btn');
+            const chooseRoleBtn = document.getElementById('choose-role-btn');
+
+            // Tout masquer par défaut
+            playBtn.style.display = 'none';
+            choosePlayerBtn.style.display = 'none';
+            chooseRoleBtn.style.display = 'none';
+
+            if (status === 1) {
+                playBtn.style.display = 'inline-block';
+            } 
+            else if (status === 2) {
+                choosePlayerBtn.style.display = 'inline-block';
+            } 
+            else if (status === 3) {
+                chooseRoleBtn.style.display = 'inline-block';
+            }
         });
 
         socket.on('update_players', (players) => {
@@ -168,14 +215,18 @@
             players.forEach(player => {
                 const div = document.createElement('div');
                 div.classList.add('player-info');
+                div.dataset.name = player.name; // Pour savoir qui est cliqué
 
                 const img = document.createElement('img');
-                img.src = player.card; // chemin de la carte
+                img.src = player.card;
                 img.alt = "Carte";
                 img.classList.add('player-card');
 
                 const span = document.createElement('span');
                 span.textContent = `${player.name} ${player.eliminated ? ' - Éliminé' : ''}`;
+
+                // On rend cliquable pour la sélection
+                div.onclick = () => selectPlayer(player.name);
 
                 div.appendChild(img);
                 div.appendChild(span);

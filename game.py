@@ -49,10 +49,30 @@ class Player:
 
         card = self.hand[index]
 
-        if card.value == 0:
-            self.espionne = card
-        elif card.value == 4:
-            self.servante = card
+        match card.value:
+            case 0:
+                self.espionne = card
+            case 1:
+                if self.is_playing == 2:
+                    self.is_playing = 3
+                else:
+                    self.is_playing = 2
+            case 2:
+                self.is_playing = 2
+            case 3:
+                self.is_playing = 2
+            case 4:
+                self.servante = card
+            case 5:
+                self.is_playing = 2
+            case 6:
+                pass
+            case 7:
+                self.is_playing = 2
+            case 8:
+                pass
+            case 9:
+                self.eliminated = True
 
         return self.discard_card(index)
 
