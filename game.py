@@ -52,6 +52,7 @@ class Player:
         match card.value:
             case 0:
                 self.espionne = card
+                self.players[self.current_turn_index].is_playing = 0
             case 1:
                 if self.is_playing == 2:
                     self.is_playing = 3
@@ -63,16 +64,18 @@ class Player:
                 self.is_playing = 2
             case 4:
                 self.servante = card
+                self.players[self.current_turn_index].is_playing = 0
             case 5:
                 self.is_playing = 2
             case 6:
-                pass
+                self.players[self.current_turn_index].is_playing = 0
             case 7:
                 self.is_playing = 2
             case 8:
-                pass
+                self.players[self.current_turn_index].is_playing = 0
             case 9:
                 self.eliminated = True
+                self.players[self.current_turn_index].is_playing = 0
 
         return self.discard_card(index)
 
@@ -158,7 +161,7 @@ class Game:
         """Passer au joueur suivant"""
         if not self.players:
             return
-        self.players[self.current_turn_index].is_playing = 0
+        
         self.current_turn_index = (self.current_turn_index + 1) % len(self.players)
         self.players[self.current_turn_index].is_playing = 1
 
@@ -207,5 +210,6 @@ class Game:
             # Défausse la carte
             self.discard_pile.append(card)
 
-            # Passer au joueur suivant
-            self.next_turn()
+            if self.players[self.current_turn_index].is_playing == 0:
+                # Passer au joueur suivant
+                self.next_turn()
