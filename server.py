@@ -100,11 +100,8 @@ def on_play(data):
     data attendu depuis le client : {'cardIndex': int}
     """
     cardIndex = data.get('cardIndex', 0)  # index de la carte à défausser
-    current_player = game.get_current_player()
-
-    if current_player:
-        # Défausser la carte sélectionnée
-        game.handle_turn(current_player.handle_card(cardIndex))
+    
+    game.handle_chancellor(cardIndex)
     
     for player in game.players:
         emit('is_playing', player.is_playing, room=player.sid)
