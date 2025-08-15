@@ -56,17 +56,7 @@ def on_start_game():
         emit('update_hand', player.get_hand(), room=player.sid)
         emit('is_playing', player.sid == current_player.sid, room=player.sid) 
 
-    emit('update_players', [
-        {
-            "name": player.name,
-            "eliminated": player.eliminated,
-            "card": (
-                player.servante.path if player.servante 
-                else player.espionne.path if player.espionne 
-                else "/static/cartes/Dos.png"
-            )
-        } for player in game.players
-    ], broadcast=True)
+    emit('update_players', game.get_infos_players(), broadcast=True)
 
 @socketio.on('play')
 def on_play(data):
@@ -81,7 +71,7 @@ def on_play(data):
         current_player.handle_card(cardIndex)
 
         # Mettre à jour la main du joueur actuel
-        emit('update_hand', current_player.to_dict()["hand"], room=current_player.sid)
+        emit('update_hand', current_player.get_hand(), room=current_player.sid)
         
     # Passer au joueur suivant
     game.next_turn()
@@ -89,7 +79,7 @@ def on_play(data):
     if current_player:
         # Tirer une carte pour le joueur actif
         game.draw_for_player(current_player.sid)
-        emit('update_hand', current_player.to_dict()["hand"], room=current_player.sid)
+        emit('update_hand', current_player.get_hand(), room=current_player.sid)
         #emit('update_game_state', game.to_dict(), broadcast=True)
     
     for player in game.players:

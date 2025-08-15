@@ -158,3 +158,16 @@ class Game:
             "discard_pile": [c.to_dict() for c in self.discard_pile],
             "current_turn_index": self.current_turn_index
         }
+    
+    def get_infos_players(self):
+        return [
+            {
+                "name": player.name,
+                "eliminated": player.eliminated,
+                "card": (
+                    player.servante.path if player.servante 
+                    else player.espionne.path if player.espionne 
+                    else "/static/cartes/Dos.png"
+                )
+            } for player in self.players
+        ]
