@@ -233,9 +233,9 @@ class Game:
             case 2:
                 pass
             case 3:
-                if player.hand[0] > current_player.hand[0]:
+                if player.hand[0].value > current_player.hand[0].value:
                     current_player.eliminated = True
-                elif player.hand[0] < current_player.hand[0]:
+                elif player.hand[0].value < current_player.hand[0].value:
                     player.eliminated = True
 
                 current_player.is_playing = 0
