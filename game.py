@@ -53,9 +53,7 @@ class Player:
         elif card.value == 4:
             self.servante = card
 
-        self.discard_card(index)
-
-        return None
+        return self.discard_card(index)
 
 
     def to_dict(self):
@@ -166,6 +164,7 @@ class Game:
             {
                 "name": player.name,
                 "eliminated": player.eliminated,
+                "status": player == self.players[self.current_turn_index],
                 "card": (
                     player.servante.path if player.servante 
                     else player.espionne.path if player.espionne 
@@ -176,3 +175,6 @@ class Game:
 
     def get_discard_pile(self):
         return [card.to_dict() for card in self.discard_pile]
+    
+    def handle_turn(self, card : Card):
+        self.discard_pile.append(card)
