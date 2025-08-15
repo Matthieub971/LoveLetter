@@ -58,7 +58,7 @@
         <button id="play-btn" onclick="play()">Jouer</button>
 
         <h2>Défausse</h2>
-        <div id="discard-card"></div>
+        <div id="discard-pile"></div>
         <br>
 
         <h2>Main des joueurs</h2>
@@ -182,6 +182,27 @@
                 playersList.appendChild(div);
             });
         });
+
+        socket.on('update_discard_pile', (discardPile) => {
+            const discardDiv = document.getElementById('discard-pile');
+            discardDiv.innerHTML = ''; // On vide l'ancienne pile
+
+            if (discardPile.length > 0) {
+                // On récupère la dernière carte défaussée
+                const lastCard = discardPile[discardPile.length - 1];
+
+                // Créer une image pour l'afficher
+                const img = document.createElement('img');
+                img.src = lastCard.path; // chemin de l'image de la carte
+                img.alt = lastCard.name;
+                img.style.width = '100px';
+
+                discardDiv.appendChild(img);
+            } else {
+                discardDiv.textContent = 'Aucune carte défaussée';
+            }
+        });
+
     </script>
 
 </body>

@@ -117,6 +117,8 @@ class Game:
 
         self.current_turn_index = 0
 
+        self.discard_pile.append(Card("Dos", -1, "/static/cartes/Dos.png"))
+
         self.draw_for_player(self.players[self.current_turn_index].sid)
 
     def draw_for_player(self, sid: str):
@@ -171,3 +173,6 @@ class Game:
                 )
             } for player in self.players
         ]
+
+    def get_discard_pile(self):
+        return self.discard_pile
