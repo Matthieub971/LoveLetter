@@ -138,6 +138,9 @@ class Game:
             return
         self.current_turn_index = (self.current_turn_index + 1) % len(self.players)
 
+        # Tirer une carte pour le joueur actif
+        self.draw_for_player(self.players[self.current_turn_index].sid)
+
     def get_current_player(self):
         if not self.players:
             return None

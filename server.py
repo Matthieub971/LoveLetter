@@ -78,8 +78,6 @@ def on_play(data):
     game.next_turn()
     current_player = game.get_current_player()
     if current_player:
-        # Tirer une carte pour le joueur actif
-        game.draw_for_player(current_player.sid)
         emit('update_hand', current_player.get_hand(), room=current_player.sid)
         #emit('update_game_state', game.to_dict(), broadcast=True)
     
