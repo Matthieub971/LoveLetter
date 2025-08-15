@@ -137,7 +137,7 @@
                 alert("Veuillez sélectionner un joueur !");
                 return;
             }
-            socket.emit('choose_player', { player: selectedPlayerName });
+            socket.emit('choose_player', { player_sid: selectedPlayerName });
             selectedPlayerName = null;
             document.querySelectorAll('#players-list .player-info').forEach(div => {
                 div.classList.remove('selected-player');
@@ -215,7 +215,7 @@
             players.forEach(player => {
                 const div = document.createElement('div');
                 div.classList.add('player-info');
-                div.dataset.name = player.name; // Pour savoir qui est cliqué
+                div.dataset.name = player.sid; // Pour savoir qui est cliqué
 
                 const img = document.createElement('img');
                 img.src = player.card;

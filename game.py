@@ -163,6 +163,10 @@ class Game:
             return
         
         self.current_turn_index = (self.current_turn_index + 1) % len(self.players)
+        
+        while self.players[self.current_turn_index].eliminated:
+            self.current_turn_index = (self.current_turn_index + 1) % len(self.players)
+
         self.players[self.current_turn_index].is_playing = 1
 
         # Tirer une carte pour le joueur actif
@@ -193,6 +197,7 @@ class Game:
         return [
             {
                 "name": player.name,
+                "sid": player.sid,
                 "eliminated": player.eliminated,
                 "card": (
                     player.servante.path if player.servante 
@@ -213,3 +218,41 @@ class Game:
             if self.players[self.current_turn_index].is_playing == 0:
                 # Passer au joueur suivant
                 self.next_turn()
+
+    def handle_player(self, sid):
+        current_player = self.get_current_player()
+        last_card = self.discard_pile[-1].value
+        player = self.get_player_by_sid(sid)
+
+        if player.servante:
+            return
+
+        match last_card:
+            case 1:
+                pass
+            case 2:
+                pass
+            case 3:
+                if player.hand[0] > current_player.hand[0]:
+                    current_player.eliminated = True
+                elif player.hand[0] < current_player.hand[0]:
+                    player.eliminated = True
+
+                current_player.is_playing = 0
+            case 5:
+                self.discard_pile.append(player.hand[0])
+                self.draw_for_player(sid)
+
+                current_player.is_playing = 0
+            case 7:
+                card = player.hand[0]
+                player.hand[0] = current_player.hand[0]
+                current_player.hand[0] = card
+
+                current_player.is_playing = 0
+
+        if self.players[self.current_turn_index].is_playing == 0:
+                # Passer au joueur suivant
+                self.next_turn()
+
+

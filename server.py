@@ -78,6 +78,22 @@ def on_play(data):
     emit('update_players', game.get_infos_players(), broadcast=True) 
     emit('update_discard_pile', game.get_discard_pile(), broadcast=True)
 
+@socketio.on('choose_player')
+def on_play(data):
+    """
+    data attendu depuis le client : {'player_sid': str}
+    """
+    player_sid = data.get('player_sid')  # sid du joueur sélectionné
+
+    game.handle_player(player_sid)
+    
+    for player in game.players:
+        emit('is_playing', player.is_playing, room=player.sid)
+        emit('update_hand', player.get_hand(), room=player.sid)  
+
+    emit('update_players', game.get_infos_players(), broadcast=True) 
+    emit('update_discard_pile', game.get_discard_pile(), broadcast=True)
+
 
 @socketio.on('disconnect')
 def on_disconnect():
