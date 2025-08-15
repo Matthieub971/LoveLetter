@@ -70,19 +70,14 @@ def on_play(data):
     if current_player:
         # Défausser la carte sélectionnée
         game.handle_turn(current_player.handle_card(cardIndex))
-
-        # Mettre à jour la main du joueur actuel
-        emit('update_hand', current_player.get_hand(), room=current_player.sid)
         
     # Passer au joueur suivant
     game.next_turn()
     current_player = game.get_current_player()
-    if current_player:
-        emit('update_hand', current_player.get_hand(), room=current_player.sid)
-        #emit('update_game_state', game.to_dict(), broadcast=True)
     
     for player in game.players:
-        emit('is_playing', player.sid == current_player.sid, room=player.sid)  
+        emit('is_playing', player.sid == current_player.sid, room=player.sid)
+        emit('update_hand', player.get_hand(), room=player.sid)  
 
     emit('update_players', game.get_infos_players(), broadcast=True) 
     emit('update_discard_pile', game.get_discard_pile(), broadcast=True)
