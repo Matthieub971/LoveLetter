@@ -288,21 +288,21 @@
                 sectionTitle.style.display = 'none';
                 sectionDiv.style.display = 'none';
                 sectionDiv.innerHTML = '';
-                return;
             }
-
-            // Sinon on affiche
-            const card = data.card[0];
-            sectionTitle.style.display = 'block';
-            sectionDiv.style.display = 'block';
-            sectionDiv.innerHTML = '';
-
-            const img = document.createElement('img');
-            img.src = card.image;
-            img.alt = card.name || "Carte";
-            img.classList.add('visible-card');
-
-            sectionDiv.appendChild(img);
+            else if (data.show === 1){
+                // Sinon on affiche
+                const card = data.card[0];
+                sectionTitle.style.display = 'block';
+                sectionDiv.style.display = 'block';
+                sectionDiv.innerHTML = '';
+    
+                const img = document.createElement('img');
+                img.src = card.image;
+                img.alt = card.name || "Carte";
+                img.classList.add('visible-card');
+    
+                sectionDiv.appendChild(img);
+            }
         });
 
     </script>
