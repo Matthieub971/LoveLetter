@@ -229,6 +229,7 @@ class Game:
                 "name": player.name,
                 "sid": player.sid,
                 "eliminated": player.eliminated,
+                "is_playing": player.is_playing,
                 "card": (
                     player.servante.path if player.servante 
                     else player.espionne.path if player.espionne 

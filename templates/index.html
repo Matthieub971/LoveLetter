@@ -278,7 +278,7 @@
                 img.classList.add('player-card');
 
                 const span = document.createElement('span');
-                span.textContent = `${player.name} ${player.eliminated ? ' - Éliminé' : ''}`;
+                span.textContent = `${player.name} ${player.eliminated ? ' - Éliminé' : ''} ${player.is_playing ? 'est en train de jouer...' : ''}`;
 
                 // On rend cliquable pour la sélection
                 div.onclick = () => selectPlayer(player.sid);
