@@ -66,6 +66,9 @@
         <button id="choose-role-btn" onclick="chooseRole()">Choisir un Rôle</button>
         <button id="choose-card-btn" onclick="chooseCard()">Placer en dessous du deck</button>
 
+        <div id="visible-player-card"></div>
+        <br>
+
         <h2>Défausse</h2>
         <div id="discard-pile"></div>
         <br>
@@ -208,6 +211,7 @@
             playBtn.style.display = 'none';
             choosePlayerBtn.style.display = 'none';
             chooseRoleBtn.style.display = 'none';
+            chooseCardBtn.style.display = 'none';
 
             if (status === 1) {
                 playBtn.style.display = 'inline-block';
@@ -268,6 +272,28 @@
                 discardDiv.textContent = 'Aucune carte défaussée';
             }
         });
+
+        socket.on('visible_player_card', (card) => {
+            const section = document.getElementById('visible-player-card');
+
+            if (!card) {
+                // Aucune carte → on cache la section
+                section.parentElement.style.display = 'none';
+                section.innerHTML = '';
+            } else {
+                // Carte reçue → on affiche la section
+                section.parentElement.style.display = 'inline-block';
+                section.innerHTML = '';
+
+                const img = document.createElement('img');
+                img.src = card.path;
+                img.alt = "Carte de l'adversaire";
+                img.classList.add('player-card');
+
+                section.appendChild(img);
+            }
+        });
+
 
     </script>
 

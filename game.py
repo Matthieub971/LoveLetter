@@ -25,6 +25,8 @@ class Player:
         self.eliminated = False
         self.espionne = None
         self.servante = None
+        self.pretre = None
+        self.garde = None
         self.is_playing = 0
 
     def draw_card(self, card: Card):
@@ -46,6 +48,7 @@ class Player:
             raise IndexError("Index de carte invalide")
         
         self.servante = None
+        self.pretre = None
 
         card = self.hand[index]
 
@@ -266,6 +269,7 @@ class Game:
             case 1:
                 current_player.is_playing = 0
             case 2:
+                current_player.pretre = player.hand[0]
                 current_player.is_playing = 0
             case 3:
                 if player.hand[0].value > current_player.hand[0].value:

@@ -74,6 +74,7 @@ def on_play(data):
     for player in game.players:
         emit('is_playing', player.is_playing, room=player.sid)
         emit('update_hand', player.get_hand(), room=player.sid)  
+        emit('visible_player_card', player.pretre, room=player.sid)  
 
     emit('update_players', game.get_infos_players(), broadcast=True) 
     emit('update_discard_pile', game.get_discard_pile(), broadcast=True)
@@ -89,7 +90,8 @@ def on_play(data):
     
     for player in game.players:
         emit('is_playing', player.is_playing, room=player.sid)
-        emit('update_hand', player.get_hand(), room=player.sid)  
+        emit('update_hand', player.get_hand(), room=player.sid) 
+        emit('visible_player_card', player.pretre, room=player.sid)  
 
     emit('update_players', game.get_infos_players(), broadcast=True) 
     emit('update_discard_pile', game.get_discard_pile(), broadcast=True)
@@ -106,6 +108,7 @@ def on_play(data):
     for player in game.players:
         emit('is_playing', player.is_playing, room=player.sid)
         emit('update_hand', player.get_hand(), room=player.sid)  
+        emit('visible_player_card', player.pretre, room=player.sid)  
 
     emit('update_players', game.get_infos_players(), broadcast=True) 
     emit('update_discard_pile', game.get_discard_pile(), broadcast=True)
