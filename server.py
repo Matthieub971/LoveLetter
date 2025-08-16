@@ -81,6 +81,9 @@ def on_play(data):
     emit('update_players', game.get_infos_players(), broadcast=True) 
     emit('update_discard_pile', game.get_discard_pile(), broadcast=True)
 
+    if game.check_winner():
+        emit('winner', game.get_winner(), broadcast=True)
+
 @socketio.on('choose_player')
 def on_choose_player(data):
     """
@@ -97,6 +100,9 @@ def on_choose_player(data):
 
     emit('update_players', game.get_infos_players(), broadcast=True) 
     emit('update_discard_pile', game.get_discard_pile(), broadcast=True)
+
+    if game.check_winner():
+        emit('winner', game.get_winner(), broadcast=True)
 
 @socketio.on('choose_card')
 def on_choose_card(data):
@@ -115,6 +121,9 @@ def on_choose_card(data):
     emit('update_players', game.get_infos_players(), broadcast=True) 
     emit('update_discard_pile', game.get_discard_pile(), broadcast=True)
 
+    if game.check_winner():
+        emit('winner', game.get_winner(), broadcast=True)
+
 @socketio.on('choose_role')
 def on_choose_role(data):
     """
@@ -130,6 +139,9 @@ def on_choose_role(data):
 
     emit('update_players', game.get_infos_players(), broadcast=True) 
     emit('update_discard_pile', game.get_discard_pile(), broadcast=True)
+
+    if game.check_winner():
+        emit('winner', game.get_winner(), broadcast=True)
 
 @socketio.on('disconnect')
 def on_disconnect():

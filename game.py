@@ -263,6 +263,9 @@ class Game:
                 return True
         return False
     
+    def get_winner(self):
+        return [p.to_dict() for p in self.winner]
+    
     def handle_turn(self, card : Card):
         if card:
             # Défausse la carte
@@ -282,7 +285,7 @@ class Game:
         last_card = self.discard_pile[-1].value
         player = self.get_player_by_sid(sid)
 
-        if not player:
+        if not player or player.eliminated:
             return
 
         if player.servante:

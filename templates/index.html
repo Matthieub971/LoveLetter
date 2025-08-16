@@ -82,6 +82,12 @@
         <br>
     </div>
 
+    <div id="section-winner" class="section">
+        <h2>Gagnant</h2>
+        <br>
+        <div id="winner-card"></div>
+    </div>
+
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script>
         const socket = io();
@@ -345,6 +351,48 @@
                 roleDiv.appendChild(img);
                 roleDiv.appendChild(name);
                 container.appendChild(roleDiv);
+            });
+        });
+
+        socket.on('winner', (winners) => {
+            showSection("section-winner");
+
+            const container = document.getElementById('winner-card');
+            container.innerHTML = ''; // On vide avant d'afficher
+
+            winners.forEach(winner => {
+                const winnerDiv = document.createElement('div');
+                winnerDiv.style.textAlign = 'center';
+                winnerDiv.style.display = 'inline-block';
+                winnerDiv.style.margin = '10px';
+                winnerDiv.style.border = '2px solid gold';
+                winnerDiv.style.borderRadius = '10px';
+                winnerDiv.style.padding = '10px';
+                winnerDiv.style.backgroundColor = '#fdf6e3';
+
+                // Nom du joueur
+                const name = document.createElement('h3');
+                name.textContent = winner.name;
+
+                winnerDiv.appendChild(name);
+
+                // Les cartes (normalement il n'en restera qu'une en fin de partie)
+                winner.hand.forEach(card => {
+                    const img = document.createElement('img');
+                    img.src = card.image;
+                    img.alt = card.name;
+                    img.style.width = '100px';
+                    img.style.display = 'block';
+                    img.style.margin = 'auto';
+
+                    const cardName = document.createElement('p');
+                    cardName.textContent = card.name;
+
+                    winnerDiv.appendChild(img);
+                    winnerDiv.appendChild(cardName);
+                });
+
+                container.appendChild(winnerDiv);
             });
         });
     </script>
