@@ -26,7 +26,6 @@ class Player:
         self.espionne = None
         self.servante = None
         self.pretre = None
-        self.garde = None
         self.is_playing = 0
 
     def draw_card(self, card: Card):
@@ -104,6 +103,14 @@ class Player:
         return {
             "card": [self.pretre.to_dict()] if self.pretre else []
         }
+    
+    def reset_player(self):
+        self.hand = []  # Liste d'objets Card
+        self.eliminated = False
+        self.espionne = None
+        self.servante = None
+        self.pretre = None
+        self.is_playing = 0
 
 class Game:
     def __init__(self):
@@ -208,11 +215,16 @@ class Game:
         return self.players[self.current_turn_index]
 
     def reset_game(self):
-        self.players.clear()
         self.deck.clear()
         self.discard_pile.clear()
         self.started = False
         self.current_turn_index = 0
+        self.roles = []
+        self.target = None
+        self.winner = []
+
+        for player in self.players:
+            player.reset_player()
 
     def to_dict(self):
         """Retourne un dictionnaire représentant l'état du jeu (pour tous les joueurs)"""

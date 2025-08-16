@@ -49,8 +49,6 @@ def on_start_game():
 
     emit('start_game', broadcast=True)
 
-    current_player = game.get_current_player()
-
     # Envoyer à chaque joueur sa main privée
     for player in game.players:
         emit('update_hand', player.get_hand(), room=player.sid)
