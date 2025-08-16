@@ -297,7 +297,7 @@
         });
 
         socket.on('show_roles', (roles) => {
-            const container = document.getElementById('roles-container');
+            const container = document.getElementById('roles-list');
             container.innerHTML = ''; // vide avant d'afficher
 
             roles.forEach(role => {
