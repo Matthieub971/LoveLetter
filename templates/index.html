@@ -88,6 +88,7 @@
         let myUsername = null;
         let selectedCardIndex = null;
         let selectedPlayerName = null;
+        let selectedRoleValue = null;
 
         function showSection(id) {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('visible'));
@@ -158,6 +159,31 @@
             selectedPlayerName = null;
             document.querySelectorAll('#players-list .player-info').forEach(div => {
                 div.classList.remove('selected-player');
+            });
+        }
+
+        // --- Sélection d'un role ---
+        function selectRole(roleValue, element) {
+            selectedRoleValue = roleValue;
+
+            // Enlève la sélection visuelle de tous les rôles
+            document.querySelectorAll('#roles-list div').forEach(div => {
+                div.style.border = 'none';
+            });
+
+            // Met en avant le rôle choisi (vert)
+            element.style.border = '2px solid green';
+        }
+
+        function choosePlayer() {
+            if (selectedRoleValue === null) {
+                alert("Veuillez sélectionner un rôle avant de continuer !");
+                return;
+            }
+            socket.emit('choose_role', selectedRoleValue);
+            selectedRoleValue = null;
+            document.querySelectorAll('#roles-list div').forEach(div => {
+                div.style.border = 'none';
             });
         }
 
@@ -303,6 +329,7 @@
             roles.forEach(role => {
                 const roleDiv = document.createElement('div');
                 roleDiv.style.textAlign = 'center';
+                roleDiv.style.cursor = 'pointer';
 
                 const img = document.createElement('img');
                 img.src = role.image;
@@ -311,6 +338,9 @@
 
                 const name = document.createElement('p');
                 name.textContent = role.name;
+
+                // Quand on clique sur ce rôle → on le sélectionne
+                roleDiv.addEventListener('click', () => selectRole(role.value, roleDiv));
 
                 roleDiv.appendChild(img);
                 roleDiv.appendChild(name);

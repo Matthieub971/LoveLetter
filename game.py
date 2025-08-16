@@ -116,6 +116,8 @@ class Game:
         self.started = False
         self.current_turn_index = 0
         self.roles = []
+        self.target = None
+        self.winner = []
 
     def add_player(self, sid: str, name: str):
         self.players.append(Player(sid, name))
@@ -245,8 +247,24 @@ class Game:
         return [card.to_dict() for card in self.roles]
     
     def check_winner(self):
-        for player in self.players:
-            pass
+        self.winner = []
+        max = -1
+        active_players = [p for p in self.players if not p.eliminated]
+
+        if len(active_players) == 1:
+            # Il ne reste qu'un seul joueur en jeu
+            self.winner.append(active_players[0])
+            return True
+        else:
+            if not self.deck:
+                for player in active_players:
+                    if player.hand[0].value > max:
+                        max = player.hand[0].value
+                        self.winner.append(player)
+                    elif player.hand[0].value == max:
+                        self.winner.append(player)
+                return True
+        return False
     
     def handle_turn(self, card : Card):
         if card:
@@ -261,6 +279,7 @@ class Game:
                 self.draw_for_player(self.players[self.current_turn_index].sid)
                 self.draw_for_player(self.players[self.current_turn_index].sid)
 
+
     def handle_player(self, sid):
         current_player = self.get_current_player()
         last_card = self.discard_pile[-1].value
@@ -271,7 +290,8 @@ class Game:
 
         match last_card:
             case 1:
-                current_player.is_playing = 0
+                self.target = player
+                current_player.is_playing = 3
             case 2:
                 current_player.pretre = player.hand[0]
                 current_player.is_playing = 0
@@ -318,6 +338,18 @@ class Game:
         if self.players[self.current_turn_index].is_playing == 0:
                 # Passer au joueur suivant
                 self.next_turn()
+
+    def handle_garde(self, value):
+        current_player = self.get_current_player()
+
+        if self.target.hand[0].value == value:
+            self.discard_pile.append(self.target.hand[0])
+            self.target.hand.pop(0)
+            self.target.eliminated = True
+            self.target = None
+
+        current_player.is_playing = 0
+        self.next_turn()
 
 
 
