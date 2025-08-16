@@ -274,8 +274,12 @@ class Game:
             case 3:
                 if player.hand[0].value > current_player.hand[0].value:
                     current_player.eliminated = True
+                    self.discard_pile.append(current_player.hand[0])
+                    current_player.hand.pop(0)
                 elif player.hand[0].value < current_player.hand[0].value:
                     player.eliminated = True
+                    self.discard_pile.append(player.hand[0])
+                    player.hand.pop(0)
 
                 current_player.is_playing = 0
             case 5:
