@@ -51,7 +51,7 @@
         <h1>Love Letter</h1>
         <input type="text" id="username" placeholder="Entrez votre pseudo">
         <br>
-        <button onclick="joinGame()">Se connecter</button>
+        <button id="join-btn" onclick="joinGame()">Se connecter</button>
         <div id="players"></div>
         <button id="start-btn" onclick="startGame()" style="display:none;">Lancer la partie</button>
     </div>
@@ -106,6 +106,12 @@
             if (!username) return;
             myUsername = username;
             socket.emit('join', { username });
+
+            // Cache le bouton
+            document.getElementById("join-btn").style.display = 'none';
+
+            // (Optionnel) cache aussi le champ input
+            document.getElementById("username").style.display = 'none';
         }
 
         function startGame() {

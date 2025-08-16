@@ -168,7 +168,6 @@ def on_disconnect():
 @socketio.on('reset_game')
 def on_reset_game():
     game.reset_game()
-    emit('player_list', [], broadcast=True)
     emit('game_reset', broadcast=True)
 
 # ========================
