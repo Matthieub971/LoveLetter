@@ -284,7 +284,7 @@
             const sectionDiv = document.getElementById('visible-player-card');
 
             // Si aucune carte à montrer
-            if (!data || !data.show || !data.card || data.card.length === 0) {
+            if (data.show === 0) {
                 sectionTitle.style.display = 'none';
                 sectionDiv.style.display = 'none';
                 sectionDiv.innerHTML = '';
