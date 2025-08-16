@@ -106,9 +106,8 @@ class Player:
     def get_visible_hand(self):
         return {
             "show": (
-                    1 if self.pretre 
-                    else 0
-            ),
+                1 if self.pretre 
+                else 0),
             "card": [self.pretre.to_dict()],
         }
 
