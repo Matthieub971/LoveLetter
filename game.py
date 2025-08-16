@@ -57,10 +57,7 @@ class Player:
                 self.espionne = card
                 self.is_playing = 0
             case 1:
-                if self.is_playing == 2:
-                    self.is_playing = 3
-                else:
-                    self.is_playing = 2
+                self.is_playing = 2
             case 2:
                 self.is_playing = 2
             case 3:
@@ -284,6 +281,9 @@ class Game:
         current_player = self.get_current_player()
         last_card = self.discard_pile[-1].value
         player = self.get_player_by_sid(sid)
+
+        if not player:
+            return
 
         if player.servante:
             return
