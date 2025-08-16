@@ -66,6 +66,7 @@
         <button id="choose-role-btn" onclick="chooseRole()">Choisir un Rôle</button>
         <button id="choose-card-btn" onclick="chooseCard()">Placer en dessous du deck</button>
 
+        <h2 id="visible-player-title">Carte adverse</h2>
         <div id="visible-player-card"></div>
         <br>
 
@@ -274,27 +275,26 @@
         });
 
         socket.on('visible_player_card', (card) => {
-            const section = document.getElementById('visible-player-card');
+            const sectionTitle = document.querySelector('h2#visible-player-title'); 
+            const sectionDiv = document.getElementById('visible-player-card');
 
             if (!card) {
-                // Aucune carte → on cache la section
-                section.parentElement.style.display = 'none';
-                section.innerHTML = '';
+                sectionTitle.style.display = 'none';
+                sectionDiv.style.display = 'none';
+                sectionDiv.innerHTML = '';
             } else {
-                // Carte reçue → on affiche la section
-                section.parentElement.style.display = 'inline-block';
-                section.innerHTML = '';
+                sectionTitle.style.display = 'block';
+                sectionDiv.style.display = 'block';
+                sectionDiv.innerHTML = '';
 
                 const img = document.createElement('img');
                 img.src = card.path;
-                img.alt = "Carte de l'adversaire";
+                img.alt = card.name || "Carte";
                 img.classList.add('player-card');
 
-                section.appendChild(img);
+                sectionDiv.appendChild(img);
             }
         });
-
-
     </script>
 
 </body>
