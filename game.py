@@ -251,6 +251,8 @@ class Game:
         if len(active_players) == 1:
             # Il ne reste qu'un seul joueur en jeu
             self.winner.append(active_players[0])
+            if len(self.winner[0].hand > 1):
+                self.winner[0].hand.pop(1)
             return True
         else:
             if not self.deck:
