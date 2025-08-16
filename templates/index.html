@@ -38,6 +38,11 @@
             border-radius: 5px;
             padding: 5px;
         }
+
+        .visible-card {
+            width: 100px;
+            height: auto;
+        }
     </style>
 </head>
 <body>
@@ -288,9 +293,9 @@
                 sectionDiv.innerHTML = '';
 
                 const img = document.createElement('img');
-                img.src = card.path;
+                img.src = card.image;
                 img.alt = card.name || "Carte";
-                img.classList.add('player-card');
+                img.classList.add('visible-card');
 
                 sectionDiv.appendChild(img);
             }
