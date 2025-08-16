@@ -102,7 +102,12 @@ class Player:
     
     def get_hand(self):
         return [card.to_dict() for card in self.hand]
-
+    
+    def get_visible_hand(self):
+        return {
+            "show": self.pretre is not None,
+            "card": [self.pretre.to_dict()],
+        }
 
 class Game:
     def __init__(self):

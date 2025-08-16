@@ -279,27 +279,32 @@
             }
         });
 
-        socket.on('visible_player_card', (card) => {
-            const sectionTitle = document.querySelector('h2#visible-player-title'); 
+        socket.on('visible_player_card', (data) => {
+            const sectionTitle = document.querySelector('#visible-player-title'); 
             const sectionDiv = document.getElementById('visible-player-card');
 
-            if (!card) {
+            // Si aucune carte à montrer
+            if (!data || !data.show || !data.card || data.card.length === 0) {
                 sectionTitle.style.display = 'none';
                 sectionDiv.style.display = 'none';
                 sectionDiv.innerHTML = '';
-            } else {
-                sectionTitle.style.display = 'block';
-                sectionDiv.style.display = 'block';
-                sectionDiv.innerHTML = '';
-
-                const img = document.createElement('img');
-                img.src = card.image;
-                img.alt = card.name || "Carte";
-                img.classList.add('visible-card');
-
-                sectionDiv.appendChild(img);
+                return;
             }
+
+            // Sinon on affiche
+            const card = data.card[0];
+            sectionTitle.style.display = 'block';
+            sectionDiv.style.display = 'block';
+            sectionDiv.innerHTML = '';
+
+            const img = document.createElement('img');
+            img.src = card.image;
+            img.alt = card.name || "Carte";
+            img.classList.add('visible-card');
+
+            sectionDiv.appendChild(img);
         });
+
     </script>
 
 </body>
