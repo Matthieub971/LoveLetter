@@ -277,16 +277,18 @@
             const sectionDiv = document.getElementById('visible-player-card');
             sectionDiv.innerHTML = '';
 
-            if (data.show === 1){
-                // Sinon on affiche
+            if (data.card && data.card.length > 0) {
                 const card = data.card[0];
-    
+
                 const img = document.createElement('img');
                 img.src = card.image;
-                img.alt = card.name;
+                img.alt = card.name || 'Carte';
                 img.style.width = '100px';
-    
+
                 sectionDiv.appendChild(img);
+                sectionDiv.style.display = 'block'; // Réaffiche si besoin
+            } else {
+                sectionDiv.style.display = 'none';
             }
         });
 
