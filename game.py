@@ -291,8 +291,11 @@ class Game:
                 current_player.is_playing = 0
             case 5:
                 self.discard_pile.append(player.hand[0])
-                player.hand.pop(0)
-                self.draw_for_player(sid)
+                card = player.hand.pop(0)
+                if card.value == 9:
+                    player.eliminated = True
+                else:
+                    self.draw_for_player(sid)
 
                 current_player.is_playing = 0
             case 7:
