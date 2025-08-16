@@ -59,6 +59,7 @@ def on_start_game():
 
     emit('update_players', game.get_infos_players(), broadcast=True)
     emit('update_discard_pile', game.get_discard_pile(), broadcast=True)
+    emit('show_roles', game.get_roles(), broadcast=True)
 
 @socketio.on('play')
 def on_play(data):

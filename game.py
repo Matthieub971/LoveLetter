@@ -143,7 +143,7 @@ class Game:
 
     def setup_roles(self):
         """Crée le deck avec les cartes et mélange"""
-        self.deck = (
+        self.roles = (
             [Card("Espionne", 0, "/static/cartes/Espionne.png")] +
             [Card("Prêtre", 2, "/static/cartes/Pretre.png")] +
             [Card("Baron", 3, "/static/cartes/Baron.png")] +

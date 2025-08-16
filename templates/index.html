@@ -76,6 +76,10 @@
         <h2>Main des joueurs</h2>
         <div id="players-list"></div>
         <br>
+
+        <h2>Roles</h2>
+        <div id="roles-list"></div>
+        <br>
     </div>
 
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
@@ -292,6 +296,27 @@
             }
         });
 
+        socket.on('show_roles', (roles) => {
+            const container = document.getElementById('roles-container');
+            container.innerHTML = ''; // vide avant d'afficher
+
+            roles.forEach(role => {
+                const roleDiv = document.createElement('div');
+                roleDiv.style.textAlign = 'center';
+
+                const img = document.createElement('img');
+                img.src = role.image;
+                img.alt = role.name;
+                img.style.width = '100px';
+
+                const name = document.createElement('p');
+                name.textContent = role.name;
+
+                roleDiv.appendChild(img);
+                roleDiv.appendChild(name);
+                container.appendChild(roleDiv);
+            });
+        });
     </script>
 
 </body>
