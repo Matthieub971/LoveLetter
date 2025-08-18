@@ -317,7 +317,7 @@ class Game:
             case 1:
                 self.target = player
                 current_player.is_playing = 3
-                self.infos = current_player.name + " pense que " + player.name + "est ... "
+                self.infos = current_player.name + " pense que " + player.name + " est ... "
             case 2:
                 current_player.pretre = player.hand[0]
                 current_player.is_playing = 0
@@ -340,7 +340,7 @@ class Game:
                 if card.value == 9:
                     player.eliminated = True
                 elif not self.deck:
-                    player.hand[0].append(self.discard_pile.pop(0))
+                    player.hand.append(self.discard_pile.pop(0))
                 else:
                     self.draw_for_player(sid)
 
@@ -373,12 +373,12 @@ class Game:
 
     def handle_garde(self, value):
         current_player = self.get_current_player()
+        self.infos  = self.infos + self.get_name_by_value(value)
 
         if self.target.hand[0].value == value:
             self.discard_pile.append(self.target.hand[0])
             self.target.hand.pop(0)
             self.target.eliminated = True
-            self.infos  = self.infos + self.target.name
             self.target = None
 
         current_player.is_playing = 0
@@ -389,6 +389,13 @@ class Game:
             "deck_length": len(self.deck),
             "infos": self.infos
         }
+    
+    def get_name_by_value(self, value):
+        for card in self.roles:
+            if card.value == value:
+                return card.name
+        return None  # si aucune carte ne correspond
+
 
 
 
