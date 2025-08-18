@@ -375,11 +375,11 @@ class Game:
         current_player = self.get_current_player()
         self.infos  = self.infos + self.get_name_by_value(value)
 
-        if self.target.hand[0].value == value:
-            self.discard_pile.append(self.target.hand[0])
-            self.target.hand.pop(0)
-            self.target.eliminated = True
-            self.target = None
+        if self.target and self.target.hand[0].value == value:
+                self.discard_pile.append(self.target.hand[0])
+                self.target.hand.pop(0)
+                self.target.eliminated = True
+                self.target = None
 
         current_player.is_playing = 0
         self.next_turn()
