@@ -205,10 +205,11 @@ class Game:
         while self.players[self.current_turn_index].eliminated:
             self.current_turn_index = (self.current_turn_index + 1) % len(self.players)
 
-        self.players[self.current_turn_index].is_playing = 1
+        if self.deck:
+            self.players[self.current_turn_index].is_playing = 1
 
-        # Tirer une carte pour le joueur actif
-        self.draw_for_player(self.players[self.current_turn_index].sid)
+            # Tirer une carte pour le joueur actif
+            self.draw_for_player(self.players[self.current_turn_index].sid)
 
     def get_current_player(self):
         if not self.players:
@@ -270,7 +271,7 @@ class Game:
                 self.winner[0].hand.pop(1)
             return True
         else:
-            if not self.deck:
+            if self.deck:
                 for player in active_players:
                     if player.is_playing:
                         return False
@@ -291,6 +292,8 @@ class Game:
         if card:
             # Défausse la carte
             self.discard_pile.append(card)
+
+            self.infos = self.players[self.current_turn_index].name + " a joué : "
 
             if self.players[self.current_turn_index].is_playing == 0:
                 # Passer au joueur suivant
