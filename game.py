@@ -122,6 +122,7 @@ class Game:
         self.roles = []
         self.target = None
         self.winner = []
+        self.infos = ""
 
     def add_player(self, sid: str, name: str):
         self.players.append(Player(sid, name))
@@ -145,7 +146,6 @@ class Game:
         )
 
         random.shuffle(self.deck)
-        self.deck.pop(0)
 
     def setup_roles(self):
         """Crée le deck avec les cartes et mélange"""
@@ -176,7 +176,8 @@ class Game:
 
         self.current_turn_index = 0
         self.players[self.current_turn_index].is_playing = 1
-
+        
+        self.discard_pile.append(self.deck.pop(0))
         self.discard_pile.append(Card("Dos", -1, "/static/cartes/Dos.png"))
 
         self.draw_for_player(self.players[self.current_turn_index].sid)
@@ -222,6 +223,7 @@ class Game:
         self.roles = []
         self.target = None
         self.winner = []
+        self.infos = ""
 
         for player in self.players:
             player.reset_player()
@@ -270,8 +272,12 @@ class Game:
         else:
             if not self.deck:
                 for player in active_players:
+                    if player.is_playing:
+                        return False
+                    
                     if player.hand[0].value > max:
                         max = player.hand[0].value
+                        self.winner.clear()
                         self.winner.append(player)
                     elif player.hand[0].value == max:
                         self.winner.append(player)
@@ -299,6 +305,7 @@ class Game:
         current_player = self.get_current_player()
         last_card = self.discard_pile[-1].value
         player = self.get_player_by_sid(sid)
+        self.infos = ""
 
         if not player or player.eliminated:
             return
@@ -310,9 +317,11 @@ class Game:
             case 1:
                 self.target = player
                 current_player.is_playing = 3
+                self.infos = current_player.name + " pense que " + player.name + "est ... "
             case 2:
                 current_player.pretre = player.hand[0]
                 current_player.is_playing = 0
+                self.infos = current_player.name + " a regardé la carte de " + player.name
             case 3:
                 if player.hand[0].value > current_player.hand[0].value:
                     current_player.eliminated = True
@@ -324,21 +333,26 @@ class Game:
                     player.hand.pop(0)
 
                 current_player.is_playing = 0
+                self.infos = current_player.name + " essaye de baronner " + player.name
             case 5:
                 self.discard_pile.append(player.hand[0])
                 card = player.hand.pop(0)
                 if card.value == 9:
                     player.eliminated = True
+                elif not self.deck:
+                    player.hand[0].append(self.discard_pile.pop(0))
                 else:
                     self.draw_for_player(sid)
 
                 current_player.is_playing = 0
+                self.infos = current_player.name + " fait défausser la carte de " + player.name
             case 7:
                 card = player.hand[0]
                 player.hand[0] = current_player.hand[0]
                 current_player.hand[0] = card
 
                 current_player.is_playing = 0
+                self.infos = current_player.name + " échange sa carte avec " + player.name
 
         if self.players[self.current_turn_index].is_playing == 0:
                 # Passer au joueur suivant
@@ -364,10 +378,17 @@ class Game:
             self.discard_pile.append(self.target.hand[0])
             self.target.hand.pop(0)
             self.target.eliminated = True
+            self.infos  = self.infos + self.target.name
             self.target = None
 
         current_player.is_playing = 0
         self.next_turn()
+
+    def get_infos_game(self):
+        return {
+            "deck_length": len(self.deck),
+            "infos": self.infos
+        }
 
 
 

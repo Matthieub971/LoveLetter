@@ -70,7 +70,9 @@
         <br>
 
         <h2>Défausse</h2>
+        <div id="infos-game"></div>
         <div id="discard-pile"></div>
+        <div id="deck-length"></div>
         <br>
 
         <h2>Main des joueurs</h2>
@@ -398,6 +400,16 @@
 
                 container.appendChild(winnerDiv);
             });
+        });
+
+        socket.on('game_infos', (data) => {
+            // Afficher le nombre de cartes
+            const deckDiv = document.getElementById('deck-length');
+            deckDiv.textContent = "Nombre de cartes dans le deck : " + data.deck_length;
+
+            // Afficher les infos
+            const infosDiv = document.getElementById('infos-game');
+            infosDiv.textContent = data.infos;
         });
     </script>
 
