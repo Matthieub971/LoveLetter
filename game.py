@@ -280,6 +280,7 @@ class Game:
                         return False
                     
                     if player.hand[0].value > max:
+                        print("Debug : player.hand[0].value > max")
                         max = player.hand[0].value
                         self.winner.clear()
                         self.winner.append(player)
