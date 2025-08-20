@@ -166,6 +166,8 @@ class Game:
         if len(self.players) < 2:
             raise ValueError("Il faut au moins 2 joueurs pour commencer")
 
+        random.shuffle(self.players)
+
         self.started = True
         self.setup_roles()
         self.setup_deck()
