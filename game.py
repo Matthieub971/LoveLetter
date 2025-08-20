@@ -276,6 +276,7 @@ class Game:
             if self.deck:
                 for player in active_players:
                     if player.is_playing:
+                        print(f"{player.name} est en train de jouer : {player.is_playing}")
                         return False
                     
                     if player.hand[0].value > max:
