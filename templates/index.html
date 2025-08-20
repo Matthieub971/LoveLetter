@@ -287,6 +287,13 @@
                 const span = document.createElement('span');
                 span.textContent = `${player.name} ${player.eliminated ? ' - Éliminé' : ''} ${player.is_playing ? 'est en train de jouer...' : ''}`;
 
+                // si le joueur est éliminé, on met tout en rouge
+                if (player.eliminated) {
+                    span.style.color = "red";
+                } else {
+                    span.style.color = "black"; // ou une autre couleur par défaut
+                }
+
                 // On rend cliquable pour la sélection
                 div.onclick = () => selectPlayer(player.sid);
 
